@@ -14,5 +14,6 @@ namespace UserManagement.Application.Interfaces.Repositories
         public Task UpdateAsync(User user, CancellationToken cancellationToken);
         public Task DeleteAsync(int id, CancellationToken cancellationToken);
         public Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken);
+        public Task<User> GetByUserNameAsync(string userName, CancellationToken cancellationToken);
     }
 }

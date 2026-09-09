@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UserManagement.Application.Common;
 using UserManagement.Application.Interfaces.Repositories;
 using UserManagement.Domain.Entities;
 
@@ -44,6 +45,16 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
         public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken)
         {
             return await this._applicationDbContext.Users.ToListAsync(cancellationToken);
+        }
+
+        public async Task<User> GetByUserNameAsync(string userName, CancellationToken cancellationToken)
+        {
+            var user = await this._applicationDbContext.Users.Where(usr => usr.UserName ==  userName).FirstOrDefaultAsync();
+            if (user == null)
+            {
+                throw new NotFoundException("User Not Found");
+            }
+            return user;
         }
 
         public async Task UpdateAsync(User user, CancellationToken cancellationToken)
