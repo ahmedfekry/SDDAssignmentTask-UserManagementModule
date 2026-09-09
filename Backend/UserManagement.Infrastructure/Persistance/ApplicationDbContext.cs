@@ -19,9 +19,13 @@ namespace UserManagement.Infrastructure.Persistance
         {
             base.OnModelCreating(modelBuilder);
 
+            // user configs
             modelBuilder.Entity<User>().HasIndex(u => u.UserName).IsUnique();
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+            modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
 
+
+            // role configs
             modelBuilder.Entity<Role>().HasIndex(u => u.Name) .IsUnique();
 
         }

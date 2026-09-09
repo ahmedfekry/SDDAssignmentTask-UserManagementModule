@@ -19,6 +19,7 @@ namespace UserManagement.Domain.Entities
         public Role Role { get; set; }
 
         public bool IsDeleted { get; set; } = false;
+        public DateTime IsDeletedAt { get; set; }
 
     }
 }
