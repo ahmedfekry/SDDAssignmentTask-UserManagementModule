@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="UserManagement.API/UserManagement.API.csproj" Id="410c75c0-d4a6-487b-af8d-fcbf3f1585da" />
+  <Project Path="UserManagement.Application/UserManagement.Application.csproj" Id="06ced287-e6b7-407d-979c-293261ae626c" />
+  <Project Path="UserManagement.Domain/UserManagement.Domain.csproj" Id="427538a1-c2a2-46f7-a405-0b5a05ebbd2c" />
+  <Project Path="UserManagement.Infrastructure/UserManagement.Infrastructure.csproj" Id="9dd682e6-7394-408d-89e5-146b5d4303c9" />
+</Solution>
