@@ -22,12 +22,43 @@ namespace UserManagement.Infrastructure.Persistance
             // user configs
             modelBuilder.Entity<User>().HasIndex(u => u.UserName).IsUnique();
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
-            modelBuilder.Entity<User>().HasQueryFilter(u => !u.IsDeleted);
+            modelBuilder.Entity<User>().HasQueryFilter(u => u.IsDeleted == 0);
 
 
             // role configs
             modelBuilder.Entity<Role>().HasIndex(u => u.Name) .IsUnique();
 
         }
+
+        public override int SaveChanges()
+        {
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = 1;
+                    entry.Entity.DeletedAt = DateTime.UtcNow;
+                }
+            }
+
+            return base.SaveChanges();
+        }
+
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken)
+        {
+            foreach (var entry in ChangeTracker.Entries<BaseEntity>())
+            {
+                if (entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    entry.Entity.IsDeleted = 1;
+                    entry.Entity.DeletedAt = DateTime.UtcNow;
+                }
+            }
+
+
+            return base.SaveChangesAsync();
+        } 
     }
 }

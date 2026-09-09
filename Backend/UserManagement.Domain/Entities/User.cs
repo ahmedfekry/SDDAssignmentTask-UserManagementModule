@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace UserManagement.Domain.Entities
 {
-    public class User
+    public class User : BaseEntity
     {
         public int Id { get; set; }
         public string Name { get; set; }
@@ -17,9 +17,6 @@ namespace UserManagement.Domain.Entities
 
         public int RoleId { get; set; }
         public Role Role { get; set; }
-
-        public bool IsDeleted { get; set; } = false;
-        public DateTime IsDeletedAt { get; set; }
 
     }
 }
