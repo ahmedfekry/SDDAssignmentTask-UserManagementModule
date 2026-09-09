@@ -54,7 +54,7 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
                 throw new Exception("Not Found");
             }
 
-            this._applicationDbContext.Update(user);
+            this._applicationDbContext.Users.Update(user);
             await this._applicationDbContext.SaveChangesAsync(cancellationToken);
         }
     }

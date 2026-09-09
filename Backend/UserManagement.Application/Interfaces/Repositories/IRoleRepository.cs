@@ -9,10 +9,10 @@ namespace UserManagement.Application.Interfaces.Repositories
 {
     public interface IRoleRepository
     {
-        Task<Role> GetByIdAsync(int id);
-        public Task AddAsync(User user);
-        public Task UpdateAsync(User user);
-        public Task DeleteAsync(int id);
-        public Task<IEnumerable<User>> GetAllAsync();
+        Task<Role> GetByIdAsync(int id,CancellationToken cancellationToken);
+        public Task AddAsync(Role user,CancellationToken cancellationToken);
+        public Task UpdateAsync(Role user, CancellationToken cancellationToken);
+        public Task DeleteAsync(int id, CancellationToken cancellationToken);
+        public Task<IEnumerable<Role>> GetAllAsync(CancellationToken cancellationToken);
     }
 }
