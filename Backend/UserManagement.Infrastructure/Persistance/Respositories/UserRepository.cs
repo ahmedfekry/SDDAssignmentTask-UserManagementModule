@@ -18,30 +18,44 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
             _applicationDbContext = applicationDbContext;
         }
 
-        public async Task AddAsync(User user)
+        public async Task AddAsync(User user, CancellationToken cancellationToken)
         {
             await this._applicationDbContext.Users.AddAsync(user);
             this._applicationDbContext.SaveChanges();
         }
 
-        public async Task<User?> ByIdAsync(int id)
+        public async Task<User?> ByIdAsync(int id, CancellationToken cancellationToken)
         {
             return await this._applicationDbContext.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
         }
 
-        public Task DeleteAsync(int id)
+        public async Task DeleteAsync(int id, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var user = await this._applicationDbContext.Users.FindAsync(id);
+            if (user == null)
+            {
+                throw new Exception("Not Found");
+            }
+
+            this._applicationDbContext.Users.Remove(user);
+            await this._applicationDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public Task<IEnumerable<User>> GetAllAsync()
+        public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            return await this._applicationDbContext.Users.ToListAsync(cancellationToken);
         }
 
-        public Task UpdateAsync(User user)
+        public async Task UpdateAsync(User user, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            var existingUser = await this._applicationDbContext.Users.FindAsync(user.Id);
+            if (existingUser == null)
+            {
+                throw new Exception("Not Found");
+            }
+
+            this._applicationDbContext.Update(user);
+            await this._applicationDbContext.SaveChangesAsync(cancellationToken);
         }
     }
 }
