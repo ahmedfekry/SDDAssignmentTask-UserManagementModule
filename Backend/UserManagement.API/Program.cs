@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserManagement.Application.Interfaces.Repositories;
+using UserManagement.Application.Interfaces.Services;
+using UserManagement.Application.Services;
 using UserManagement.Infrastructure.Persistance;
 using UserManagement.Infrastructure.Persistance.Respositories;
 
@@ -15,8 +17,13 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+
+
+builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
+builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 
 var app = builder.Build();
 
