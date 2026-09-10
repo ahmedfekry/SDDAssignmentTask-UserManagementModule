@@ -10,6 +10,7 @@ namespace UserManagement.Application.Interfaces.Services
     public interface IUserService
     {
         Task CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken);
+        Task UpdateUserAsync(int userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken);
         Task DeleteUserAsync(string userId,CancellationToken cancellationToken);
         Task<IEnumerable<UserDTO>> GetAllUsersAsync(CancellationToken cancellationToken);
     }

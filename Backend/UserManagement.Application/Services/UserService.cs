@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using UserManagement.Application.Common;
 using UserManagement.Application.Interfaces.Repositories;
 using UserManagement.Application.Interfaces.Services;
 using UserManagement.Domain.DTOs.User;
@@ -57,6 +58,49 @@ namespace UserManagement.Application.Services
         public Task CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
+        }
+
+        public async Task UpdateUserAsync(int userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken)
+        {
+            // validate the user exists
+            var user = await _userRepository.ByIdAsync(userId, cancellationToken);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            // validate the username is not used by another user
+            user = await _userRepository.GetByUserNameAsync(updateUserDto.Username, cancellationToken);
+            if (user != null && user.Id != userId)
+            {
+                throw new Exception("Username already Exists");
+            }
+
+            // validate the email is not used by another user
+            user = await _userRepository.GetByEmailAsync(updateUserDto.Email, cancellationToken);
+            if (user != null && user.Id != userId)
+            {
+                throw new Exception("Email already Exists");
+            }
+
+            //validate if password & password confirmed is matched if they exists
+            if (!String.IsNullOrEmpty(updateUserDto.Password))
+            {
+                if(updateUserDto.Password != updateUserDto.PasswordConfirmed || String.IsNullOrEmpty(updateUserDto.PasswordConfirmed))
+                {
+                    throw new InvalidDataException("Password and password confirmeed is not martched");
+                }
+
+                user.PasswordHash = _passwordHasherService.HashPassword(updateUserDto.Password);
+            }
+
+            user.Name = updateUserDto.Name;
+            user.UserName = updateUserDto.Username;
+            user.Email = updateUserDto.Email;
+            user.RoleId = updateUserDto.RoleId;
+            user.LastModifiedDate = DateTime.Now;
+
+            await _userRepository.UpdateAsync(user, cancellationToken);
         }
 
         public Task DeleteUserAsync(string userId, CancellationToken cancellationToken)

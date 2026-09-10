@@ -31,6 +31,20 @@ namespace UserManagement.API.Controllers
             }
         }
 
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto updateUserDto, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _userService.UpdateUserAsync(id, updateUserDto, cancellationToken);
+                return Success(new { }, "Success");
+            }
+            catch (Exception ex)
+            {
+                return Failed(ex.Message);
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
