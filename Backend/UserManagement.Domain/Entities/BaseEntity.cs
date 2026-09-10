@@ -10,5 +10,8 @@ namespace UserManagement.Domain.Entities
     {
         public int IsDeleted { get; set; }
         public DateTime DeletedAt { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+        public DateTime LastModifiedDate { get; set; }
     }
 }
