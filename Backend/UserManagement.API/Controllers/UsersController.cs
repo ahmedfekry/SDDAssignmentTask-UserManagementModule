@@ -22,8 +22,8 @@ namespace UserManagement.API.Controllers
         {
             try
             {
-                await _userService.CreateUserAsync(createUserDto,cancellationToken);
-                return Success(new { }, "Success");
+                var result = await _userService.CreateUserAsync(createUserDto,cancellationToken);
+                return Success(result, "Success");
             }
             catch (Exception ex)
             {

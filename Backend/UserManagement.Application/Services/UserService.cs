@@ -23,7 +23,7 @@ namespace UserManagement.Application.Services
             _passwordHasherService = passwordHasherService;
         }
 
-        public async Task CreateUser(CreateUserDto createUserDto, CancellationToken cancellationToken)
+        public async Task<UserDTO> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
         {
             // validate existing Username
             var user = new User();
@@ -40,6 +40,7 @@ namespace UserManagement.Application.Services
                 throw new Exception("Username already Exists");
 
             }
+            user = new User();
 
             user.UserName = createUserDto.Username;
             user.Email = createUserDto.Email;
@@ -53,11 +54,14 @@ namespace UserManagement.Application.Services
 
             await this._userRepository.AddAsync(user, cancellationToken);
 
-        }
-
-        public Task CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
+            return new UserDTO
+            {
+                Id = user.Id,
+                Username = user.UserName,
+                Email = user.Email,
+                Name = user.Name,
+                Role = user.RoleId.ToString()
+            };
         }
 
         public async Task UpdateUserAsync(int userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken)
