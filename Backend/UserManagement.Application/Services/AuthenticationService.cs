@@ -15,11 +15,16 @@ namespace UserManagement.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasherService _passwordHasherService;
+        private readonly IJWTGeneratorService _jWTGeneratorService;
 
-        public AuthenticationService(IUserRepository userRepository,IPasswordHasherService passwordHasherService) 
+        public AuthenticationService(IUserRepository userRepository,
+                                     IPasswordHasherService passwordHasherService,
+                                     IJWTGeneratorService jWTGeneratorService
+                                     ) 
         {
             _userRepository = userRepository;
             _passwordHasherService = passwordHasherService;
+            _jWTGeneratorService = jWTGeneratorService;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest, CancellationToken cancellationToken)
@@ -38,8 +43,10 @@ namespace UserManagement.Application.Services
 
             return new LoginResponse
             {
-                Token = "Test Token",
-                ExpiresAt = DateTime.UtcNow
+                Username = loginRequest.Username,
+                UserId = user.Id,
+                RoleName = user.Role.Name,
+                Token = _jWTGeneratorService.GenerateJWTTekenAsync(user)
             };
         }
     }

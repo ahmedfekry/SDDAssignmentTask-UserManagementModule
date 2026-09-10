@@ -55,7 +55,7 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
 
         public async Task<User> GetByUserNameAsync(string userName, CancellationToken cancellationToken)
         {
-            var user = await this._applicationDbContext.Users.Where(usr => usr.UserName ==  userName).FirstOrDefaultAsync();
+            var user = await this._applicationDbContext.Users.Include(usr => usr.Role).Where(usr => usr.UserName ==  userName).FirstOrDefaultAsync();
             return user;
         }
 

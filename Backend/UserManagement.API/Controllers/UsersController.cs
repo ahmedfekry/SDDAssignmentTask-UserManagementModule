@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
 using UserManagement.Application.Interfaces.Services;
@@ -18,6 +19,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody]CreateUserDto createUserDto, CancellationToken cancellationToken)
         {
             try
@@ -32,6 +34,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto updateUserDto, CancellationToken cancellationToken)
         {
             try
@@ -46,6 +49,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             try
@@ -60,6 +64,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin,User,ReadOnlyUser")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             try
