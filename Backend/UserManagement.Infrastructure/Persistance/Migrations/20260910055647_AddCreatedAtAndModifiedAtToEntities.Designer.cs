@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using UserManagement.Infrastructure.Persistance;
 
@@ -11,9 +12,11 @@ using UserManagement.Infrastructure.Persistance;
 namespace UserManagement.Infrastructure.Persistance.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260910055647_AddCreatedAtAndModifiedAtToEntities")]
+    partial class AddCreatedAtAndModifiedAtToEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -44,26 +47,6 @@ namespace UserManagement.Infrastructure.Persistance.Migrations
                         .IsUnique();
 
                     b.ToTable("Roles");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Description = "Full access",
-                            Name = "Admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Description = "Can view and update their own profile only.",
-                            Name = "User"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Description = "Read-only access.",
-                            Name = "ReadOnlyUser"
-                        });
                 });
 
             modelBuilder.Entity("UserManagement.Domain.Entities.User", b =>

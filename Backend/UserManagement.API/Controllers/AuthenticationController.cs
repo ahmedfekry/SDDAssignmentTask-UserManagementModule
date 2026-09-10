@@ -27,13 +27,9 @@ namespace UserManagement.API.Controllers
 
                 return Success(result, "Login Successful");
             }
-            catch (NotFoundException ex)
+            catch (Exception ex)
             {
-                return Failed("User was not found",StatusCodes.Status404NotFound, []);
-            }
-            catch (UnauthorizedAccessException ex)
-            {
-                return Failed(ex.Message,StatusCodes.Status401Unauthorized);
+                return Failed(ex.Message,StatusCodes.Status404NotFound, []);
             }
         }
 

@@ -28,6 +28,12 @@ namespace UserManagement.Infrastructure.Persistance
             // role configs
             modelBuilder.Entity<Role>().HasIndex(u => u.Name) .IsUnique();
 
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = 1, Name = "Admin", Description = "Full access" },
+                new Role { Id = 2, Name = "User", Description = "Can view and update their own profile only." },
+                new Role { Id = 3, Name = "ReadOnlyUser", Description = "Read-only access." }
+            );
+
         }
 
         public override int SaveChanges()

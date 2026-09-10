@@ -24,8 +24,21 @@ namespace UserManagement.Application.Services
 
         public async Task CreateUser(CreateUserDto createUserDto, CancellationToken cancellationToken)
         {
-
+            // validate existing Username
             var user = new User();
+            user = await _userRepository.GetByUserNameAsync(createUserDto.Username,cancellationToken);
+            if (user != null)
+            {
+                throw new Exception("Username already Exists");
+            }
+
+            //validate the email exists
+            user = await _userRepository.GetByEmailAsync(createUserDto.Email,cancellationToken);
+            if (user != null)
+            {
+                throw new Exception("Username already Exists");
+
+            }
 
             user.UserName = createUserDto.Username;
             user.Email = createUserDto.Email;

@@ -15,5 +15,6 @@ namespace UserManagement.Application.Interfaces.Repositories
         public Task DeleteAsync(int id, CancellationToken cancellationToken);
         public Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken);
         public Task<User> GetByUserNameAsync(string userName, CancellationToken cancellationToken);
+        public Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken);
     }
 }

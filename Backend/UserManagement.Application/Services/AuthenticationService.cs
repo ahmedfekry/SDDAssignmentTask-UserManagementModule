@@ -25,17 +25,13 @@ namespace UserManagement.Application.Services
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest, CancellationToken cancellationToken)
         {
             var user = new User();
-            try
-            {
-                user = await this._userRepository.GetByUserNameAsync(loginRequest.Username,cancellationToken);
-            }
-            catch (Exception ex)
-            {
-                throw;
-            }
+            
+            user = await this._userRepository.GetByUserNameAsync(loginRequest.Username,cancellationToken);
+            if (user == null)
+                throw new NotFoundException("Invalid Login Credentials");
 
             var passwordValid = _passwordHasherService.CheckPassword(loginRequest.Password, user.PasswordHash);
-            if (passwordValid)
+            if (!passwordValid)
             {
                 throw new UnauthorizedAccessException();
             }

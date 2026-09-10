@@ -24,6 +24,7 @@ builder.Services.AddScoped<IRoleRepository, RoleRepository>();
 
 builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 
@@ -41,3 +42,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+//dotnet ef migrations add InitialMigarations --project .\UserManagement.Infrastructure\ --startup-project .\UserManagement.API\ --output-dir Persistance\Migrations\ --context ApplicationDbContext
+//dotnet ef database update --project .\UserManagement.Infrastructure\ --startup-project .\UserManagement.API\

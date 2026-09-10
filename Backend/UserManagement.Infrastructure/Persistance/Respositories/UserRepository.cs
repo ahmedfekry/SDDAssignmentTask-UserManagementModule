@@ -47,13 +47,15 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
             return await this._applicationDbContext.Users.ToListAsync(cancellationToken);
         }
 
+        public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)
+        {
+            var user = await this._applicationDbContext.Users.Where(usr => usr.Email == email).FirstOrDefaultAsync();
+            return user;
+        }
+
         public async Task<User> GetByUserNameAsync(string userName, CancellationToken cancellationToken)
         {
             var user = await this._applicationDbContext.Users.Where(usr => usr.UserName ==  userName).FirstOrDefaultAsync();
-            if (user == null)
-            {
-                throw new NotFoundException("User Not Found");
-            }
             return user;
         }
 
