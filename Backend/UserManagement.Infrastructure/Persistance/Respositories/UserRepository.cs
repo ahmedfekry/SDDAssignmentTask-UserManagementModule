@@ -44,7 +44,7 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
 
         public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken)
         {
-            return await this._applicationDbContext.Users.ToListAsync(cancellationToken);
+            return await this._applicationDbContext.Users.Include(usr => usr.Role).ToListAsync(cancellationToken);
         }
 
         public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)

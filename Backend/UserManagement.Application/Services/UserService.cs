@@ -53,5 +53,28 @@ namespace UserManagement.Application.Services
             await this._userRepository.AddAsync(user, cancellationToken);
 
         }
+
+        public Task CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task DeleteUserAsync(string userId, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task<IEnumerable<UserDTO>> GetAllUsersAsync(CancellationToken cancellationToken)
+        {
+            var users = await _userRepository.GetAllAsync(cancellationToken);
+            return users.Select(user => new UserDTO
+            {
+                Id = user.Id,
+                Name = user.UserName,
+                Email = user.Email,
+                Username = user.UserName,
+                Role = user.Role.Name
+            });
+        }
     }
 }

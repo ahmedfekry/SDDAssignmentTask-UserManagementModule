@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Linq.Expressions;
 using UserManagement.Application.Interfaces.Services;
 using UserManagement.Domain.DTOs.User;
 
@@ -21,14 +22,27 @@ namespace UserManagement.API.Controllers
         {
             try
             {
-                await _userService.CreateUser(createUserDto,cancellationToken);
+                await _userService.CreateUserAsync(createUserDto,cancellationToken);
                 return Success(new { }, "Success");
             }
             catch (Exception ex)
             {
                 return Failed(ex.Message);
             }
+        }
 
+        [HttpGet]
+        public async Task<IActionResult> Index(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var users = await _userService.GetAllUsersAsync(cancellationToken);
+                return Success(new { users });
+            }
+            catch (Exception ex)
+            {
+                return Failed(ex.Message);
+            }
         }
     }
 }
