@@ -103,9 +103,16 @@ namespace UserManagement.Application.Services
             await _userRepository.UpdateAsync(user, cancellationToken);
         }
 
-        public Task DeleteUserAsync(string userId, CancellationToken cancellationToken)
+        public async Task DeleteUserAsync(int userId, CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            // validate the user exists
+            var user = await _userRepository.ByIdAsync(userId, cancellationToken);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            await _userRepository.DeleteAsync(userId, cancellationToken);
         }
 
         public async Task<IEnumerable<UserDTO>> GetAllUsersAsync(CancellationToken cancellationToken)

@@ -45,6 +45,20 @@ namespace UserManagement.API.Controllers
             }
         }
 
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await _userService.DeleteUserAsync(id, cancellationToken);
+                return Success(new { }, "Success");
+            }
+            catch (Exception ex)
+            {
+                return Failed(ex.Message);
+            }
+        }
+
         [HttpGet]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
