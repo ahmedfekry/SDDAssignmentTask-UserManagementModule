@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using UserManagement.Application.Common;
 using UserManagement.Application.Interfaces.Repositories;
@@ -14,27 +15,36 @@ namespace UserManagement.Application.Services
 {
     public class UserService : IUserService
     {
+        private const string AuditTableName = "Users";
+
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasherService _passwordHasherService;
+        private readonly IAuditLogRepository _auditLogRepository;
+        private readonly ICurrentUserService _currentUserService;
 
-        public UserService(IUserRepository userRepository, IPasswordHasherService passwordHasherService)
+        public UserService(
+            IUserRepository userRepository,
+            IPasswordHasherService passwordHasherService,
+            IAuditLogRepository auditLogRepository,
+            ICurrentUserService currentUserService)
         {
             _userRepository = userRepository;
             _passwordHasherService = passwordHasherService;
+            _auditLogRepository = auditLogRepository;
+            _currentUserService = currentUserService;
         }
 
         public async Task<UserDTO> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken)
         {
             // validate existing Username
-            var user = new User();
-            user = await _userRepository.GetByUserNameAsync(createUserDto.Username,cancellationToken);
+            var user = await _userRepository.GetByUserNameAsync(createUserDto.Username, cancellationToken);
             if (user != null)
             {
                 throw new Exception("Username already Exists");
             }
 
             //validate the email exists
-            user = await _userRepository.GetByEmailAsync(createUserDto.Email,cancellationToken);
+            user = await _userRepository.GetByEmailAsync(createUserDto.Email, cancellationToken);
             if (user != null)
             {
                 throw new Exception("Username already Exists");
@@ -53,6 +63,8 @@ namespace UserManagement.Application.Services
 
 
             await this._userRepository.AddAsync(user, cancellationToken);
+
+            await WriteAuditAsync(ActionType.Add, user.Id, oldValues: null, newValues: GetJsonValueOfObject(user), cancellationToken);
 
             return new UserDTO
             {
@@ -74,23 +86,35 @@ namespace UserManagement.Application.Services
             }
 
             // validate the username is not used by another user
-            user = await _userRepository.GetByUserNameAsync(updateUserDto.Username, cancellationToken);
-            if (user != null && user.Id != userId)
+            var userWithSameUsername = await _userRepository.GetByUserNameAsync(updateUserDto.Username, cancellationToken);
+            if (userWithSameUsername != null && userWithSameUsername.Id != userId)
             {
                 throw new Exception("Username already Exists");
             }
 
             // validate the email is not used by another user
-            user = await _userRepository.GetByEmailAsync(updateUserDto.Email, cancellationToken);
-            if (user != null && user.Id != userId)
+            var userWithSameEmail = await _userRepository.GetByEmailAsync(updateUserDto.Email, cancellationToken);
+            if (userWithSameEmail != null && userWithSameEmail.Id != userId)
             {
                 throw new Exception("Email already Exists");
             }
 
+            // validate the user is admin if he is updating another user
+            if(_currentUserService.UserId != user.Id)
+            {
+                var currentUser = await _userRepository.ByIdAsync(_currentUserService.UserId.Value, cancellationToken);
+                if(currentUser.Role.Name != "Admin")
+                {
+                    throw new UnauthorizedAccessException("You are not allowed to update this user");
+                }
+            }
+
+            var oldValues = GetJsonValueOfObject(user);
+
             //validate if password & password confirmed is matched if they exists
             if (!String.IsNullOrEmpty(updateUserDto.Password))
             {
-                if(updateUserDto.Password != updateUserDto.PasswordConfirmed || String.IsNullOrEmpty(updateUserDto.PasswordConfirmed))
+                if (updateUserDto.Password != updateUserDto.PasswordConfirmed || String.IsNullOrEmpty(updateUserDto.PasswordConfirmed))
                 {
                     throw new InvalidDataException("Password and password confirmeed is not martched");
                 }
@@ -105,6 +129,8 @@ namespace UserManagement.Application.Services
             user.LastModifiedDate = DateTime.Now;
 
             await _userRepository.UpdateAsync(user, cancellationToken);
+
+            await WriteAuditAsync(ActionType.Update, user.Id, oldValues, GetJsonValueOfObject(user), cancellationToken);
         }
 
         public async Task DeleteUserAsync(int userId, CancellationToken cancellationToken)
@@ -116,7 +142,11 @@ namespace UserManagement.Application.Services
                 throw new NotFoundException("User not found");
             }
 
+            var oldValues = GetJsonValueOfObject(user);
+
             await _userRepository.DeleteAsync(userId, cancellationToken);
+
+            await WriteAuditAsync(ActionType.Delete, userId, oldValues, newValues: null, cancellationToken);
         }
 
         public async Task<IEnumerable<UserDTO>> GetAllUsersAsync(CancellationToken cancellationToken)
@@ -130,6 +160,42 @@ namespace UserManagement.Application.Services
                 Username = user.UserName,
                 Role = user.Role.Name
             });
+        }
+
+        public string GetJsonValueOfObject(User user)
+        {
+            return JsonSerializer.Serialize(new
+            {
+                user.Id,
+                user.Name,
+                user.UserName,
+                user.Email,
+                user.RoleId,
+                user.IsDeleted
+            });
+        }
+
+        private async Task WriteAuditAsync(
+            ActionType actionType,
+            int entityId,
+            string? oldValues,
+            string? newValues,
+            CancellationToken cancellationToken)
+        {
+            var auditLog = new AuditLog
+            {
+                TableName = AuditTableName,
+                actionType = actionType,
+                EntityId = entityId,
+                CreatedAt = DateTime.Now,
+                CreatedBy = _currentUserService.UserId ?? 0,
+                IpAddress = _currentUserService.IpAddress ?? string.Empty,
+                OldEntityValues = oldValues,
+                NewEntityValues = newValues,
+                ChangeDetails = $"{actionType} on {AuditTableName} (Id: {entityId})"
+            };
+
+            await _auditLogRepository.CreateAsync(auditLog, cancellationToken);
         }
     }
 }

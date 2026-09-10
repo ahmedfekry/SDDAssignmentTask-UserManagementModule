@@ -27,7 +27,7 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
 
         public async Task<User?> ByIdAsync(int id, CancellationToken cancellationToken)
         {
-            return await this._applicationDbContext.Users.Where(u => u.Id == id).FirstOrDefaultAsync();
+            return await this._applicationDbContext.Users.Include(u => u.Role).Where(u => u.Id == id).FirstOrDefaultAsync();
         }
 
         public async Task DeleteAsync(int id, CancellationToken cancellationToken)

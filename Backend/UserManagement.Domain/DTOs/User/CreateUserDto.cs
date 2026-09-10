@@ -16,7 +16,7 @@ namespace UserManagement.Domain.DTOs.User
         [Required]
         public string Email { get; set; }
         [Required]
-        [StringLength(8,ErrorMessage = "Password must be greater than 8 char")]
+        [MinLength(8,ErrorMessage = "Password must be greater than 8 char")]
         public string Password { get; set; }
         [Required]
         [AllowedValues([1,2,3],ErrorMessage = "Invalid Role Id")]
