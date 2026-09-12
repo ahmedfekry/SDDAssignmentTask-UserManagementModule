@@ -2,14 +2,22 @@
   <div class="brand"><span class="logo">U</span><span data-i18n="app.name">UserAdmin</span></div>
   <nav>
     <div class="nav-section" data-i18n="nav.overview">Overview</div>
-    <a href="dashboard.html"><span aria-hidden="true">▚</span> <span data-i18n="nav.dashboard">Dashboard</span></a>
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+      <span aria-hidden="true">▚</span> <span data-i18n="nav.dashboard">Dashboard</span>
+    </a>
     <div class="nav-section" data-i18n="nav.management">Management</div>
-    <a href="users-list.html"><span aria-hidden="true">☰</span> <span data-i18n="nav.users">Users</span></a>
-    <a href="user-add.html"><span aria-hidden="true">＋</span> <span data-i18n="nav.addUser">Add User</span></a>
+    <a routerLink="/users" routerLinkActive="active">
+      <span aria-hidden="true">☰</span> <span data-i18n="nav.users">Users</span>
+    </a>
+    <a routerLink="/users/create" routerLinkActive="active">
+      <span aria-hidden="true">＋</span> <span data-i18n="nav.addUser">Add User</span>
+    </a>
     <a href="audit-trail.html"><span aria-hidden="true">▤</span> <span data-i18n="nav.audit">Audit Trail</span></a>
     <div class="nav-section" data-i18n="nav.account">Account</div>
     <a href="profile.html"><span aria-hidden="true">○</span> <span data-i18n="nav.profile">My Profile</span></a>
-    <a href="login.html"><span aria-hidden="true">⏻</span> <span data-i18n="nav.logout">Log out</span></a>
+    <a routerLink="/signin" routerLinkActive="active">
+      <span aria-hidden="true">⏻</span> <span data-i18n="nav.logout">Log out</span>
+    </a>
   </nav>
   <div class="sidebar-foot">v1.0 · RBAC demo</div>
 </aside>

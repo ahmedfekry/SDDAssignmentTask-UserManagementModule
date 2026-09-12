@@ -25,7 +25,15 @@ export const routes: Routes = [
         path: 'users',
         loadComponent: () => {
           return import("./users/users").then((m) => m.Users);
-        }
+        },
+        children: [
+          {
+            path: "create",
+            loadComponent: () => {
+              return import("./users/create-user/create-user").then((m) => m.CreateUser);
+            }
+          }
+        ]
       }
     ]
   },
