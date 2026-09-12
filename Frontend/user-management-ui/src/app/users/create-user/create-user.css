@@ -1,0 +1,12 @@
+
+.checkline {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.field .error-text { display: none; }
+.field.invalid .error-text { display: block; }
+.field .hint { display: block; }

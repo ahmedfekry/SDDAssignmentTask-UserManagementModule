@@ -1,0 +1,52 @@
+<main class="content">
+  <div class="page-head">
+    <div>
+      <h1 data-i18n="users.title">Users</h1>
+      <p class="sub" data-i18n="users.subtitle">Manage accounts, roles and access.</p>
+    </div>
+    <a class="btn btn-primary" href="user-add.html" data-i18n="nav.addUser">Add User</a>
+  </div>
+
+  <div class="card">
+    <div class="card-body">
+      <div class="toolbar">
+        <div class="search">
+          <input class="input" type="search" id="tblSearch"
+                  data-i18n-placeholder="common.searchUsers"
+                  placeholder="Search by name, username or email…" />
+        </div>
+        <select class="select" id="tblRole" data-i18n-title="common.role">
+          <option value="" data-i18n="common.allRoles">All roles</option>
+          <option value="Admin" data-i18n="role.Admin">Admin</option>
+          <option value="User" data-i18n="role.User">User</option>
+          <option value="ReadOnlyUser" data-i18n="role.ReadOnlyUser">Read-only User</option>
+        </select>
+        <select class="select" id="tblPerPage" data-i18n-title="common.perPage">
+          <option value="8">8</option>
+          <option value="12">12</option>
+          <option value="20">20</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data" id="usersTable">
+          <thead>
+            <tr>
+              <th class="sortable" data-key="name" data-i18n="users.col.name">Name</th>
+              <th class="sortable" data-key="username" data-i18n="users.col.username">Username</th>
+              <th class="sortable" data-key="email" data-i18n="users.col.email">Email</th>
+              <th class="sortable" data-key="role" data-i18n="users.col.role">Role</th>
+              <th class="sortable" data-key="status" data-i18n="users.col.status">Status</th>
+              <th class="sortable" data-key="created" data-i18n="users.col.created">Created</th>
+              <th class="sortable" data-key="modified" data-i18n="users.col.modified">Last modified</th>
+              <th class="text-end" data-i18n="common.actions">Actions</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <div class="pagination" id="tblPager"></div>
+    </div>
+  </div>
+</main>

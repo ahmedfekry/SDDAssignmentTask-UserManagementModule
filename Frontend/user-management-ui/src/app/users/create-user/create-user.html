@@ -1,0 +1,100 @@
+<main class="content content-narrow">
+  <div class="breadcrumb">
+    <a href="users-list.html" data-i18n="users.title">Users</a> / <span data-i18n="add.title">Add User</span>
+  </div>
+  <div class="page-head">
+    <div>
+      <h1 data-i18n="add.title">Add User</h1>
+      <p class="sub" data-i18n="add.subtitle">Create a new account and assign a role.</p>
+    </div>
+  </div>
+
+  <form class="card" id="addUserForm" novalidate>
+    <div class="card-body">
+      <div class="alert alert-danger form-alert hidden">
+        <span data-i18n="common.noResults">Please complete the required fields highlighted below.</span>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="firstName"><span data-i18n="form.firstName">First name</span> <span class="req">*</span></label>
+          <input class="input" id="firstName" name="firstName" required />
+          <p class="error-text" data-i18n="common.required">required</p>
+        </div>
+        <div class="field">
+          <label for="lastName"><span data-i18n="form.lastName">Last name</span> <span class="req">*</span></label>
+          <input class="input" id="lastName" name="lastName" required />
+          <p class="error-text" data-i18n="common.required">required</p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="username"><span data-i18n="form.username">Username</span> <span class="req">*</span></label>
+          <input class="input" id="username" name="username" autocomplete="off" required />
+        </div>
+        <div class="field">
+          <label for="email"><span data-i18n="form.email">Email</span> <span class="req">*</span></label>
+          <input class="input" type="email" id="email" name="email" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="password"><span data-i18n="form.password">Password</span> <span class="req">*</span></label>
+          <input class="input" type="password" id="password" name="password" autocomplete="new-password" required />
+          <p class="hint" data-i18n="form.passwordHint">
+            Min 8 chars, 1 uppercase, 1 number, 1 symbol. Stored hashed + salted.
+          </p>
+        </div>
+        <div class="field">
+          <label for="confirmPassword"><span data-i18n="form.confirmPassword">Confirm password</span> <span class="req">*</span></label>
+          <input class="input" type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required />
+          <p class="error-text" data-i18n="common.required">required</p>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="role"><span data-i18n="form.role">Role</span> <span class="req">*</span></label>
+          <select class="select" id="role" name="role" required>
+            <option value="User" data-i18n="role.User">User</option>
+            <option value="Admin" data-i18n="role.Admin">Admin</option>
+            <option value="ReadOnlyUser" data-i18n="role.ReadOnlyUser">Read-only User</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="status" data-i18n="form.status">Status</label>
+          <select class="select" id="status" name="status">
+            <option value="Active" data-i18n="status.Active">Active</option>
+            <option value="Inactive" data-i18n="status.Inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label for="phone" data-i18n="form.phone">Phone</label>
+          <input class="input" id="phone" name="phone" />
+        </div>
+        <div class="field">
+          <label for="lang" data-i18n="form.language">Preferred language</label>
+          <select class="select" id="lang" name="lang">
+            <option value="en">English</option>
+            <option value="ar">العربية</option>
+          </select>
+        </div>
+      </div>
+
+      <label class="checkline">
+        <input type="checkbox" name="sendInvite" checked />
+        <span data-i18n="form.sendInvite">Send activation email</span>
+      </label>
+    </div>
+
+    <div class="card-footer">
+      <a href="users-list.html" class="btn btn-outline" data-i18n="common.cancel">Cancel</a>
+      <button type="submit" class="btn btn-primary" data-i18n="common.create">Create user</button>
+    </div>
+  </form>
+</main>

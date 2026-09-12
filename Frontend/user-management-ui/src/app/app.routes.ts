@@ -3,11 +3,31 @@ import { Routes } from '@angular/router';
 export const routes: Routes = [
   {
     path: '',
-    pathMatch: 'full',
     loadComponent: () => {
-      return import("./home/home").then((m) => m.Home);
+      return import("./layout/layout").then((m) => m.Layout);
     },
-    title: "Home Page"
+    children: [
+      {
+        path: '',
+        pathMatch: 'full',
+        loadComponent: () => {
+          return import("./home/home").then((m) => m.Home);
+        },
+        title: "Home Page"
+      },
+      {
+        path: 'profile/:id',
+        loadComponent: () => {
+          return import("./profile/profile").then((m) => m.Profile);
+        }
+      },
+      {
+        path: 'users',
+        loadComponent: () => {
+          return import("./users/users").then((m) => m.Users);
+        }
+      }
+    ]
   },
   {
     path: 'signin',
@@ -15,12 +35,6 @@ export const routes: Routes = [
       return import("./auth/signin/signin").then((m) => m.Signin);
     },
     title: "Sign In"
-  },
-  {
-    path: 'profile/:id',
-    loadComponent: () => {
-      return import("./profile/profile").then((m) => m.Profile);
-    }
   },
   {
     path: "**",

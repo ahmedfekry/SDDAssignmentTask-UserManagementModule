@@ -1,0 +1,17 @@
+/* users-list.css — styles specific to the users list page */
+
+.checkline {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+#usersTable td:last-child { width: 1%; }
+
+@media (max-width: 640px) {
+  .toolbar .select,
+  .toolbar .checkline { width: 100%; }
+}
