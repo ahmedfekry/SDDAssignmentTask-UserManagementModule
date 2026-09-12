@@ -6,13 +6,27 @@ export const routes: Routes = [
     pathMatch: 'full',
     loadComponent: () => {
       return import("./home/home").then((m) => m.Home);
-    }
+    },
+    title: "Home Page"
   },
   {
     path: 'signin',
-    pathMatch: 'full',
     loadComponent: () => {
       return import("./auth/signin/signin").then((m) => m.Signin);
+    },
+    title: "Sign In"
+  },
+  {
+    path: 'profile/:id',
+    loadComponent: () => {
+      return import("./profile/profile").then((m) => m.Profile);
     }
+  },
+  {
+    path: "**",
+    loadComponent: () => {
+      return import("./components/not-found/not-found").then((m) => m.NotFound);
+    },
+    title: "Not Found"
   }
 ];
