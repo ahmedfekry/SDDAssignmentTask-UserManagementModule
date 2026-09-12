@@ -4,7 +4,7 @@
       <h1 data-i18n="users.title">Users</h1>
       <p class="sub" data-i18n="users.subtitle">Manage accounts, roles and access.</p>
     </div>
-    <a class="btn btn-primary" href="user-add.html" data-i18n="nav.addUser">Add User</a>
+    <a class="btn btn-primary" routerLink="/users/create" data-i18n="nav.addUser">Add User</a>
   </div>
 
   <div class="card">
@@ -36,13 +36,27 @@
               <th class="sortable" data-key="username" data-i18n="users.col.username">Username</th>
               <th class="sortable" data-key="email" data-i18n="users.col.email">Email</th>
               <th class="sortable" data-key="role" data-i18n="users.col.role">Role</th>
-              <th class="sortable" data-key="status" data-i18n="users.col.status">Status</th>
-              <th class="sortable" data-key="created" data-i18n="users.col.created">Created</th>
-              <th class="sortable" data-key="modified" data-i18n="users.col.modified">Last modified</th>
               <th class="text-end" data-i18n="common.actions">Actions</th>
             </tr>
           </thead>
-          <tbody></tbody>
+          <tbody>
+            @for (u of usersList(); track u.Id) {
+              <tr>
+                <td><strong>{{ u.Name }}</strong></td>
+                <td>{{ u.UserName }}</td>
+                <td class="muted">{{ u.Email }}</td>
+                <td>{{ u.Role }}</td>
+                <td class="nowrap text-end">
+                  <button type="button" class="btn btn-sm btn-outline" data-i18n="common.edit">Edit</button>
+                  <button type="button" class="btn btn-sm btn-ghost" style="color:var(--danger)" data-i18n="common.delete">Delete</button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="muted text-center" data-i18n="users.empty">No users found.</td>
+              </tr>
+            }
+          </tbody>
         </table>
       </div>
 
