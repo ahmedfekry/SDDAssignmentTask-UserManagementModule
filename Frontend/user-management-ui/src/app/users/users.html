@@ -40,12 +40,12 @@
             </tr>
           </thead>
           <tbody>
-            @for (u of usersList(); track u.Id) {
+            @for (usr of usersList(); track usr.Id) {
               <tr>
-                <td><strong>{{ u.Name }}</strong></td>
-                <td>{{ u.UserName }}</td>
-                <td class="muted">{{ u.Email }}</td>
-                <td>{{ u.Role }}</td>
+                <td><strong>{{ usr.Name }}</strong></td>
+                <td>{{ usr.UserName }}</td>
+                <td class="muted">{{ usr.Email }}</td>
+                <td>{{ usr.Role }}</td>
                 <td class="nowrap text-end">
                   <button type="button" class="btn btn-sm btn-outline" data-i18n="common.edit">Edit</button>
                   <button type="button" class="btn btn-sm btn-ghost" style="color:var(--danger)" data-i18n="common.delete">Delete</button>
