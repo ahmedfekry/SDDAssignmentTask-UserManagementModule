@@ -1,8 +1,8 @@
 export type UserModel = {
-  Id: number;
-  Name: string;
-  UserName: string;
-  Email: string;
-  Role: string;
-  RoleId: number;
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  role: string;
+  roleid: number;
 }

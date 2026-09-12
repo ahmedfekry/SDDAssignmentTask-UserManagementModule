@@ -40,15 +40,15 @@
             </tr>
           </thead>
           <tbody>
-            @for (usr of usersList(); track usr.Id) {
+            @for (usr of usersList(); track usr.id) {
               <tr>
-                <td><strong>{{ usr.Name }}</strong></td>
-                <td>{{ usr.UserName }}</td>
-                <td class="muted">{{ usr.Email }}</td>
-                <td>{{ usr.Role }}</td>
+                <td><strong>{{ usr.name }}</strong></td>
+                <td>{{ usr.username }}</td>
+                <td class="muted">{{ usr.email }}</td>
+                <td>{{ usr.role }}</td>
                 <td class="nowrap text-end">
                   <button type="button" class="btn btn-sm btn-outline" data-i18n="common.edit">Edit</button>
-                  <button type="button" class="btn btn-sm btn-ghost" style="color:var(--danger)" data-i18n="common.delete">Delete</button>
+                  <button type="button" class="btn btn-sm btn-ghost" style="color:var(--danger)" data-i18n="common.delete" (click)="deleteUser(usr.id)" >Delete</button>
                 </td>
               </tr>
             } @empty {
