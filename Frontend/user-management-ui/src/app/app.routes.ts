@@ -22,18 +22,16 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'users/create',
+        loadComponent: () => {
+          return import("./users/create-user/create-user").then((m) => m.CreateUser);
+        }
+      },
+      {
         path: 'users',
         loadComponent: () => {
           return import("./users/users").then((m) => m.Users);
-        },
-        children: [
-          {
-            path: "create",
-            loadComponent: () => {
-              return import("./users/create-user/create-user").then((m) => m.CreateUser);
-            }
-          }
-        ]
+        }
       }
     ]
   },

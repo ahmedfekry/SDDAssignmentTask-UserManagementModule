@@ -17,7 +17,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             try

@@ -2,7 +2,7 @@ import { inject, Injectable } from '@angular/core';
 import { UserModel } from '../types/user.type';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, Observable, throwError } from 'rxjs';
-import { ApiResponse } from '../types/ApiResponse.type';
+import { UsersApiResponse } from '../types/user.type';
 
 
 @Injectable({
@@ -41,14 +41,14 @@ export class UserService {
   baseUrl = `https://localhost:7254/api/`;
 
   getUsersList(): Observable<UserModel[]>{
-    return this.http.get<ApiResponse>(this.baseUrl+'users').pipe(
+    return this.http.get<UsersApiResponse>(this.baseUrl+'users').pipe(
       map(response => response.result.users),
       catchError(this.handleError)
     );
   }
 
-  deleteUser(userid: number): Observable<ApiResponse>{
-    return this.http.delete<ApiResponse>(this.baseUrl+'users/'+userid).pipe(
+  deleteUser(userid: number): Observable<UsersApiResponse>{
+    return this.http.delete<UsersApiResponse>(this.baseUrl+'users/'+userid).pipe(
       catchError(this.handleError)
     );
   }

@@ -15,6 +15,10 @@
         <span data-i18n="common.noResults">Please complete the required fields highlighted below.</span>
       </div>
 
+      @if (rolesError()) {
+        <div class="alert alert-danger">{{ rolesError() }}</div>
+      }
+
       <div class="form-row">
         <div class="field">
           <label for="firstName"><span data-i18n="form.firstName">First name</span> <span class="req">*</span></label>
@@ -58,9 +62,9 @@
         <div class="field">
           <label for="role"><span data-i18n="form.role">Role</span> <span class="req">*</span></label>
           <select class="select" id="role" name="role" required>
-            <option value="User" data-i18n="role.User">User</option>
-            <option value="Admin" data-i18n="role.Admin">Admin</option>
-            <option value="ReadOnlyUser" data-i18n="role.ReadOnlyUser">Read-only User</option>
+            @for (role of roles(); track role.id) {
+              <option [value]="role.id">{{ role.name }}</option>
+            }
           </select>
         </div>
         <div class="field">
