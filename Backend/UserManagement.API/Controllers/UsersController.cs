@@ -19,7 +19,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpPost]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromBody]CreateUserDto createUserDto, CancellationToken cancellationToken)
         {
             try
@@ -34,7 +34,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpPut("{id}")]
-        //[Authorize(Roles = "Admin,User")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDto updateUserDto, CancellationToken cancellationToken)
         {
             try
@@ -49,7 +49,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpDelete("{id}")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             try
@@ -64,7 +64,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpGet]
-        //[Authorize(Roles = "Admin,User,ReadOnlyUser")]
+        [Authorize(Roles = "Admin,User,ReadOnlyUser")]
         public async Task<IActionResult> Index(CancellationToken cancellationToken)
         {
             try
@@ -79,7 +79,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpGet("{id}")]
-        //[Authorize(Roles = "Admin,User,ReadOnlyUser")]
+        [Authorize(Roles = "Admin,User,ReadOnlyUser")]
         public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
         {
             try

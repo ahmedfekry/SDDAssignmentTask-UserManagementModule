@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
+using UserManagement.API.Middleware;
 using UserManagement.API.Services;
 using UserManagement.Application.Common;
 using UserManagement.Application.Interfaces.Repositories;
@@ -24,7 +25,9 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.SetIsOriginAllowed(_ => true)
+        // Credentialed (cookie-based) requests can't use a wildcard/any-origin policy -
+        // the frontend's origin(s) must be listed explicitly.
+        policy.WithOrigins("http://localhost:4200", "https://localhost:4200")
               .AllowAnyMethod()
               .AllowAnyHeader()
               .AllowCredentials();
@@ -71,6 +74,20 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ClockSkew = TimeSpan.Zero // Removes default 5 min grace period for token expiration
     };
+
+    // The token is stored in an HttpOnly cookie (not sent as an Authorization header),
+    // so pull it from there instead.
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            if (context.Request.Cookies.TryGetValue(AuthCookieNames.AccessToken, out var token))
+            {
+                context.Token = token;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 
 builder.Services.AddAuthorization();
@@ -98,6 +115,8 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseCors("AllowFrontend");
+
+app.UseMiddleware<XsrfValidationMiddleware>();
 
 app.UseAuthentication();
 

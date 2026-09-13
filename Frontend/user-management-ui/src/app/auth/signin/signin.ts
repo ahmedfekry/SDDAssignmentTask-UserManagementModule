@@ -40,9 +40,11 @@ export class Signin {
       next: (data) => {
         this.submitting.set(false);
         if (data.success) {
-          // console.log(data.result)
-          // console.log(data.result.jwtToken.token)
-          localStorage.setItem('token', data.result.jwtToken.token);
+          this.authService.setSession({
+            userId: data.result.userId,
+            username: data.result.username,
+            roleName: data.result.roleName
+          });
           this.router.navigate(['/']);
         } else {
           this.errorMessage.set(data.message);
@@ -55,6 +57,3 @@ export class Signin {
     });
   }
 }
-
-// https://localhost:7254/api/Authentication/login
-// https://localhost:7254/api/Authentication/login

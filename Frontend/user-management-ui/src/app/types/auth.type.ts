@@ -1,23 +1,25 @@
-export type Token = {
-  jwtToken: JwtToken;
-  userid: number;
+export type LoginResult = {
+  userId: number;
   username: string;
   roleName: string;
+  expiresAt: string;
 }
 
 export type AuthApiResponse = {
   success: boolean;
   message: string;
-  result: Token;
+  result: LoginResult;
   errors?: string[];
 };
 
-export type JwtToken = {
-  token: string;
-  expiresAt: string;
-}
 
 export type AuthPayload = {
   username: string;
   password: string;
+}
+
+export type AuthUser = {
+  userId: number;
+  username: string;
+  roleName: string;
 }

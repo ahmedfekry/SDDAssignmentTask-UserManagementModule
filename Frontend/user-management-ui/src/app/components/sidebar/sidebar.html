@@ -12,10 +12,10 @@
     <a routerLink="/users/create" routerLinkActive="active">
       <span aria-hidden="true">＋</span> <span data-i18n="nav.addUser">Add User</span>
     </a>
-    <a href="audit-trail.html"><span aria-hidden="true">▤</span> <span data-i18n="nav.audit">Audit Trail</span></a>
+    <!-- <a href="audit-trail.html"><span aria-hidden="true">▤</span> <span data-i18n="nav.audit">Audit Trail</span></a> -->
     <div class="nav-section" data-i18n="nav.account">Account</div>
     <a href="profile.html"><span aria-hidden="true">○</span> <span data-i18n="nav.profile">My Profile</span></a>
-    <a routerLink="/signin" routerLinkActive="active">
+    <a href="javascript:void(0)" (click)="logout()">
       <span aria-hidden="true">⏻</span> <span data-i18n="nav.logout">Log out</span>
     </a>
   </nav>
