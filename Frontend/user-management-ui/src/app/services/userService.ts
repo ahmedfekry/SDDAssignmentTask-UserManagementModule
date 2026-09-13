@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
-import { CreateUserPayload, UpdateUserPayload, UserApiResponse, UserModel } from '../types/user.type';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { CreateUserPayload, PagedUsers, UpdateUserPayload, UserApiResponse, UserModel } from '../types/user.type';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { UsersApiResponse } from '../types/user.type';
 
@@ -40,9 +40,10 @@ export class UserService {
   http = inject(HttpClient);
   baseUrl = `https://localhost:7254/api/`;
 
-  getUsersList(): Observable<UserModel[]>{
-    return this.http.get<UsersApiResponse>(this.baseUrl+'users').pipe(
-      map(response => response.result.users),
+  getUsersList(page: number = 1, pageSize: number = 8): Observable<PagedUsers>{
+    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    return this.http.get<UsersApiResponse>(this.baseUrl+'users', { params }).pipe(
+      map(response => response.result),
       catchError(this.handleError)
     );
   }

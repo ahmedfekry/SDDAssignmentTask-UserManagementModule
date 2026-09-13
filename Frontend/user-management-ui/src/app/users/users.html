@@ -30,10 +30,10 @@
           <option value="User" data-i18n="role.User">User</option>
           <option value="ReadOnlyUser" data-i18n="role.ReadOnlyUser">Read-only User</option>
         </select>
-        <select class="select" id="tblPerPage" data-i18n-title="common.perPage">
-          <option value="8">8</option>
-          <option value="12">12</option>
+        <select class="select" id="tblPerPage" data-i18n-title="common.perPage" [value]="pageSize()" (change)="onPageSizeChange($event)">
+          <option value="10">10</option>
           <option value="20">20</option>
+          <option value="50">50</option>
         </select>
       </div>
 
@@ -73,7 +73,20 @@
         </table>
       </div>
 
-      <div class="pagination" id="tblPager"></div>
+      <div class="pagination" id="tblPager">
+        <span class="info">
+          @if (totalCount() > 0) {
+            Showing {{ rangeStart() }}–{{ rangeEnd() }} of {{ totalCount() }} users
+          } @else {
+            No users found
+          }
+        </span>
+        <button type="button" (click)="goToPage(page() - 1)" [disabled]="page() <= 1">‹</button>
+        @for (p of pageNumbers(); track p) {
+          <button type="button" [class.active]="p === page()" (click)="goToPage(p)">{{ p }}</button>
+        }
+        <button type="button" (click)="goToPage(page() + 1)" [disabled]="page() >= totalPages()">›</button>
+      </div>
     </div>
   </div>
 </main>

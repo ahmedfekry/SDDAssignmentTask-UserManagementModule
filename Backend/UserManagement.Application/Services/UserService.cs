@@ -156,18 +156,28 @@ namespace UserManagement.Application.Services
             await WriteAuditAsync(ActionType.Delete, userId, oldValues, newValues: null, cancellationToken);
         }
 
-        public async Task<IEnumerable<UserDTO>> GetAllUsersAsync(CancellationToken cancellationToken)
+        public async Task<PagedResult<UserDTO>> GetUsersPagedAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
-            var users = await _userRepository.GetAllAsync(cancellationToken);
-            return users.Select(user => new UserDTO
+            page = page < 1 ? 1 : page;
+            pageSize = pageSize < 1 ? 10 : Math.Min(pageSize, 100);
+
+            var (users, totalCount) = await _userRepository.GetPagedAsync(page, pageSize, cancellationToken);
+
+            return new PagedResult<UserDTO>
             {
-                Id = user.Id,
-                Name = user.Name,
-                Email = user.Email,
-                Username = user.UserName,
-                Role = user.Role.Name,
-                RoleId = user.RoleId
-            });
+                Items = users.Select(user => new UserDTO
+                {
+                    Id = user.Id,
+                    Name = user.Name,
+                    Email = user.Email,
+                    Username = user.UserName,
+                    Role = user.Role.Name,
+                    RoleId = user.RoleId
+                }),
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
         }
 
         public async Task<UserDTO> GetUserByIdAsync(int userId, CancellationToken cancellationToken)

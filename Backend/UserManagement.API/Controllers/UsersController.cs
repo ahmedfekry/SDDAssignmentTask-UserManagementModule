@@ -65,12 +65,19 @@ namespace UserManagement.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin,User,ReadOnlyUser")]
-        public async Task<IActionResult> Index(CancellationToken cancellationToken)
+        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] int pageSize = 8, CancellationToken cancellationToken = default)
         {
             try
             {
-                var users = await _userService.GetAllUsersAsync(cancellationToken);
-                return Success(new { users });
+                var result = await _userService.GetUsersPagedAsync(page, pageSize, cancellationToken);
+                return Success(new
+                {
+                    users = result.Items,
+                    page = result.Page,
+                    pageSize = result.PageSize,
+                    totalCount = result.TotalCount,
+                    totalPages = result.TotalPages
+                });
             }
             catch (Exception ex)
             {

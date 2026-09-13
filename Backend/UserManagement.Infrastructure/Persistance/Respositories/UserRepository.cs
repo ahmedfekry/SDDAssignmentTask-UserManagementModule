@@ -42,9 +42,17 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
             await this._applicationDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken)
+        public async Task<(IEnumerable<User> Users, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken)
         {
-            return await this._applicationDbContext.Users.Include(usr => usr.Role).ToListAsync(cancellationToken);
+            var query = this._applicationDbContext.Users.Include(usr => usr.Role).OrderBy(usr => usr.Id);
+
+            var totalCount = await query.CountAsync(cancellationToken);
+            var users = await query
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+
+            return (users, totalCount);
         }
 
         public async Task<User> GetByEmailAsync(string email, CancellationToken cancellationToken)

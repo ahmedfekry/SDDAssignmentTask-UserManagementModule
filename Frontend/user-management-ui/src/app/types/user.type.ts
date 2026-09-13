@@ -7,12 +7,18 @@ export type UserModel = {
   roleId: number;
 }
 
+export type PagedUsers = {
+  users: UserModel[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+};
+
 export type UsersApiResponse = {
   success: boolean;
   message: string;
-  result: {
-    users: UserModel[]
-  };
+  result: PagedUsers;
   errors?: string[];
 };
 
