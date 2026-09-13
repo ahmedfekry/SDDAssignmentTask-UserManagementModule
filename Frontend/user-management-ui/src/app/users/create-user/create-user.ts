@@ -63,6 +63,7 @@ export class CreateUser implements OnInit {
       this.loadingUser.set(true);
       this.userService.getUserById(id).subscribe({
         next: (user) => {
+          console.log(user);
           this.loadingUser.set(false);
           this.form.patchValue({
             name: user.name,
@@ -72,6 +73,7 @@ export class CreateUser implements OnInit {
           });
         },
         error: (err: Error) => {
+          console.log(err);
           this.loadingUser.set(false);
           this.errorMessage.set(err.message);
         }
@@ -92,6 +94,7 @@ export class CreateUser implements OnInit {
     this.submitting.set(true);
 
     const id = this.userId();
+    // check it it is update or create new user
     if (id !== null) {
       this.userService
         .updateUser(id, {
