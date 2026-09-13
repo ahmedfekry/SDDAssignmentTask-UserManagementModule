@@ -8,8 +8,6 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
-  // The access token is an HttpOnly cookie - withCredentials makes the browser
-  // send it (and the XSRF-TOKEN cookie) and accept the Set-Cookie on responses.
   const authReq = req.clone({ withCredentials: true });
 
   return next(authReq).pipe(
