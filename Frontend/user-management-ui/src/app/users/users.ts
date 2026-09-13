@@ -10,6 +10,8 @@ import { UserModel } from '../types/user.type';
 })
 export class Users implements OnInit {
   usersList = signal<Array<UserModel>>([])
+  errorMessage = signal<string | null>(null);
+  successMessage = signal<string | null>(null);
   userService = inject(UserService);
 
   ngOnInit(): void {
@@ -17,23 +19,37 @@ export class Users implements OnInit {
   }
 
   deleteUser(userId: number){
+    this.errorMessage.set(null);
+    this.successMessage.set(null);
     this.userService
     .deleteUser(userId)
-    .subscribe((data) => {
-      console.log(data);
-      if(data.success == true){
-        this.loadUsersData();
+    .subscribe({
+      next: (data) => {
+        if (data.success) {
+          this.successMessage.set(data.message);
+          this.loadUsersData();
+        } else {
+          this.errorMessage.set(data.message);
+        }
+      },
+      error: (err: Error) => {
+        this.errorMessage.set(err.message);
       }
     });
-    // alert(userId);
   }
 
   loadUsersData(): void{
+    this.errorMessage.set(null);
     this.userService
     .getUsersList()
-    .subscribe((users) => {
-      this.usersList.set(users);
-    })
+    .subscribe({
+      next: (users) => {
+        this.usersList.set(users);
+      },
+      error: (err: Error) => {
+        this.errorMessage.set(err.message);
+      }
+    });
   }
 }
 

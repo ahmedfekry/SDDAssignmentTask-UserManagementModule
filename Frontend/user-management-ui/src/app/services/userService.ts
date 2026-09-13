@@ -1,9 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { UserModel } from '../types/user.type';
-import { HttpClient } from '@angular/common/http';
-import { map, Observable } from 'rxjs';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { catchError, map, Observable, throwError } from 'rxjs';
 import { ApiResponse } from '../types/ApiResponse.type';
-import { response } from 'express';
 
 
 @Injectable({
@@ -42,17 +41,24 @@ export class UserService {
   baseUrl = `https://localhost:7254/api/`;
 
   getUsersList(): Observable<UserModel[]>{
-    // const url = `https://localhost:7254/api/Users`;
     return this.http.get<ApiResponse>(this.baseUrl+'users').pipe(
-      map(response => response.result.users)
+      map(response => response.result.users),
+      catchError(this.handleError)
     );
   }
 
   deleteUser(userid: number): Observable<ApiResponse>{
-    // const url
     return this.http.delete<ApiResponse>(this.baseUrl+'users/'+userid).pipe(
-      map(response => response)
+      catchError(this.handleError)
     );
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    const backendMessage = error.error?.message || error.error?.errors?.[0];
+    const message = backendMessage || (error.status === 0
+      ? 'Unable to reach the server. Please check your connection and try again.'
+      : 'Something went wrong. Please try again.');
+    return throwError(() => new Error(message));
   }
 
 }

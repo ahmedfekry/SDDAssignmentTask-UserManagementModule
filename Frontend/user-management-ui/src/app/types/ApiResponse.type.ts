@@ -5,5 +5,6 @@ export type ApiResponse = {
   message: string;
   result: {
     users: UserModel[]
-  }
+  };
+  errors?: string[];
 };
