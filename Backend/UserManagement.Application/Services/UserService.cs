@@ -106,14 +106,19 @@ namespace UserManagement.Application.Services
                 throw new Exception("Email already Exists");
             }
 
+            var currentUser = await _userRepository.ByIdAsync(_currentUserService.UserId.Value, cancellationToken);
+            var isAdmin = currentUser.Role.Name == "Admin";
+
             // validate the user is admin if he is updating another user
-            if(_currentUserService.UserId != user.Id)
+            if (_currentUserService.UserId != user.Id && !isAdmin)
             {
-                var currentUser = await _userRepository.ByIdAsync(_currentUserService.UserId.Value, cancellationToken);
-                if(currentUser.Role.Name != "Admin")
-                {
-                    throw new UnauthorizedAccessException("You are not allowed to update this user");
-                }
+                throw new UnauthorizedAccessException("You are not allowed to update this user");
+            }
+
+            // only an Admin may change a user's role - including their own
+            if (!isAdmin && updateUserDto.RoleId != user.RoleId)
+            {
+                throw new UnauthorizedAccessException("You are not allowed to change your role");
             }
 
             var oldValues = GetJsonValueOfObject(user);
