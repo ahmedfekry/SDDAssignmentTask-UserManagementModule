@@ -10,22 +10,36 @@
         <h1 data-i18n="login.title">Sign in to your account</h1>
         <p class="muted" data-i18n="login.subtitle">User Management Module</p>
 
-        <div class="alert alert-danger hidden" id="loginError" data-i18n="login.error">
-          Invalid username or password. 2 attempts remaining.
-        </div>
+        <form id="loginForm" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
 
-        <form id="loginForm" (submit)="FormSubmit($event)" novalidate>
-          <div class="field">
-            <label for="username"><span data-i18n="login.username">Username</span> <span class="req">*</span></label>
+          @if (submitted && form.invalid) {
+            <div class="alert alert-danger">
+              <span data-i18n="common.noResults">Please complete the required fields highlighted below.</span>
+            </div>
+          }
+          @if (errorMessage()) {
+            <div class="alert alert-danger">{{ errorMessage() }}</div>
+          }
+          <div class="field" [class.invalid]="form.get('username')?.invalid && form.get('username')?.touched">
+            <label for="username">
+              <span data-i18n="login.username">Username</span>
+              <span class="req">*</span>
+            </label>
             <input class="input" type="text" id="username" name="username" autocomplete="username"
-                   required data-i18n-placeholder="login.username" />
+                   data-i18n-placeholder="login.username" formControlName="username" required />
+            @if (form.get('username')?.invalid && form.get('username')?.touched) {
+              <p class="error-text" data-i18n="common.required">required</p>
+            }
           </div>
-          <div class="field">
+          <div class="field" [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
             <label for="password"><span data-i18n="login.password">Password</span> <span class="req">*</span></label>
             <input class="input" type="password" id="password" name="password" autocomplete="current-password"
-                   required data-i18n-placeholder="login.password" />
+                   data-i18n-placeholder="login.password" formControlName="password" required />
+            @if (form.get('password')?.invalid && form.get('password')?.touched) {
+              <p class="error-text" data-i18n="common.required">required</p>
+            }
           </div>
-          <button type="submit" class="btn btn-primary login-submit" data-i18n="login.submit">Sign in</button>
+          <button type="submit" class="btn btn-primary login-submit" [disabled]="submitting()" data-i18n="login.submit">Sign in</button>
         </form>
       </div>
   </div>

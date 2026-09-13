@@ -1,5 +1,5 @@
 export type Token = {
-  token: string;
+  jwtToken: JwtToken;
   userid: number;
   username: string;
   roleName: string;
@@ -12,6 +12,10 @@ export type AuthApiResponse = {
   errors?: string[];
 };
 
+export type JwtToken = {
+  token: string;
+  expiresAt: string;
+}
 
 export type AuthPayload = {
   username: string;

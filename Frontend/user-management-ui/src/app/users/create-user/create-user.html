@@ -57,7 +57,7 @@
             <p class="error-text" data-i18n="common.invalidEmail">Enter a valid email</p>
           }
         </div>
-        
+
         <div class="field" [class.invalid]="form.get('roleId')?.invalid && form.get('roleId')?.touched">
           <label for="role"><span data-i18n="form.role">Role</span> <span class="req">*</span></label>
           <select class="select" id="role" formControlName="roleId" required>

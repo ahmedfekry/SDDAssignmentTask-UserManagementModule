@@ -46,7 +46,7 @@ namespace UserManagement.Application.Services
                 Username = loginRequest.Username,
                 UserId = user.Id,
                 RoleName = user.Role.Name,
-                Token = _jWTGeneratorService.GenerateJWTTekenAsync(user)
+                JwtToken = _jWTGeneratorService.GenerateJWTTekenAsync(user)
             };
         }
     }
