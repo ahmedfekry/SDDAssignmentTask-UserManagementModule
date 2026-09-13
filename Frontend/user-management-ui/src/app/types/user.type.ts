@@ -4,7 +4,7 @@ export type UserModel = {
   username: string;
   email: string;
   role: string;
-  roleid: number;
+  roleId: number;
 }
 
 export type UsersApiResponse = {
@@ -16,6 +16,13 @@ export type UsersApiResponse = {
   errors?: string[];
 };
 
+export type UserApiResponse = {
+  success: boolean;
+  message: string;
+  result: UserModel;
+  errors?: string[];
+};
+
 export type CreateUserPayload = {
   name: string;
   username: string;
@@ -23,4 +30,13 @@ export type CreateUserPayload = {
   password: string;
   passwordConfirmed: string;
   roleId: number;
+};
+
+export type UpdateUserPayload = {
+  name: string;
+  username: string;
+  email: string;
+  roleId: number;
+  password?: string;
+  passwordConfirmed?: string;
 };

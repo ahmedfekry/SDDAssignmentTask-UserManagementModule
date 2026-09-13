@@ -1,16 +1,20 @@
 <main class="content content-narrow">
   <div class="breadcrumb">
-    <a routerLink="/users" data-i18n="users.title">Users</a> / <span data-i18n="add.title">Add User</span>
+    <a routerLink="/users" data-i18n="users.title">Users</a> / <span>{{ userId() ? 'Edit User' : 'Add User' }}</span>
   </div>
   <div class="page-head">
     <div>
-      <h1 data-i18n="add.title">Add User</h1>
-      <p class="sub" data-i18n="add.subtitle">Create a new account and assign a role.</p>
+      <h1>{{ userId() ? 'Edit User' : 'Add User' }}</h1>
+      <p class="sub">{{ userId() ? 'Update the account details and role.' : 'Create a new account and assign a role.' }}</p>
     </div>
   </div>
 
   <form class="card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <div class="card-body">
+      @if (loadingUser()) {
+        <div class="alert alert-info">Loading user…</div>
+      }
+
       @if (submitted && form.invalid) {
         <div class="alert alert-danger">
           <span data-i18n="common.noResults">Please complete the required fields highlighted below.</span>
@@ -72,22 +76,26 @@
         <div class="field" [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
           <label for="password">
             <span data-i18n="form.password">Password</span>
-            <span class="req">*</span>
+            @if (!userId()) {
+              <span class="req">*</span>
+            }
           </label>
-          <input class="input" type="password" id="password" formControlName="password" autocomplete="new-password" required />
+          <input class="input" type="password" id="password" formControlName="password" autocomplete="new-password" [required]="!userId()" />
           <p class="hint" data-i18n="form.passwordHint">
-            Min 8 characters.
+            {{ userId() ? 'Leave blank to keep the current password. Min 8 characters.' : 'Min 8 characters.' }}
           </p>
           @if (form.get('password')?.invalid && form.get('password')?.touched) {
-            <p class="error-text" data-i18n="common.required">required, min 8 characters</p>
+            <p class="error-text" data-i18n="common.required">{{ userId() ? 'min 8 characters' : 'required, min 8 characters' }}</p>
           }
         </div>
         <div class="field" [class.invalid]="form.get('passwordConfirmed')?.touched && (form.get('passwordConfirmed')?.invalid || form.hasError('passwordMismatch'))">
           <label for="confirmPassword">
             <span data-i18n="form.confirmPassword">Confirm password</span>
-            <span class="req">*</span>
+            @if (!userId()) {
+              <span class="req">*</span>
+            }
           </label>
-          <input class="input" type="password" id="passwordConfirmed" formControlName="passwordConfirmed" autocomplete="new-password" required />
+          <input class="input" type="password" id="passwordConfirmed" formControlName="passwordConfirmed" autocomplete="new-password" [required]="!userId()" />
           @if (form.get('passwordConfirmed')?.touched && form.hasError('passwordMismatch')) {
             <p class="error-text" data-i18n="form.passwordMismatch">passwords do not match</p>
           }
@@ -97,7 +105,7 @@
 
     <div class="card-footer">
       <a routerLink="/users" class="btn btn-outline" data-i18n="common.cancel">Cancel</a>
-      <button type="submit" class="btn btn-primary" [disabled]="submitting()" data-i18n="common.create">Create user</button>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting() || loadingUser()">{{ userId() ? 'Update user' : 'Create user' }}</button>
     </div>
   </form>
 </main>

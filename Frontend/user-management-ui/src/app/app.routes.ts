@@ -28,6 +28,12 @@ export const routes: Routes = [
         }
       },
       {
+        path: 'users/edit/:id',
+        loadComponent: () => {
+          return import("./users/create-user/create-user").then((m) => m.CreateUser);
+        }
+      },
+      {
         path: 'users',
         loadComponent: () => {
           return import("./users/users").then((m) => m.Users);

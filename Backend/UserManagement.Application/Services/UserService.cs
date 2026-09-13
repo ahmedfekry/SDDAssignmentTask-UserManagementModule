@@ -162,11 +162,31 @@ namespace UserManagement.Application.Services
             return users.Select(user => new UserDTO
             {
                 Id = user.Id,
-                Name = user.UserName,
+                Name = user.Name,
                 Email = user.Email,
                 Username = user.UserName,
-                Role = user.Role.Name
+                Role = user.Role.Name,
+                RoleId = user.RoleId
             });
+        }
+
+        public async Task<UserDTO> GetUserByIdAsync(int userId, CancellationToken cancellationToken)
+        {
+            var user = await _userRepository.ByIdAsync(userId, cancellationToken);
+            if (user == null)
+            {
+                throw new NotFoundException("User not found");
+            }
+
+            return new UserDTO
+            {
+                Id = user.Id,
+                Name = user.Name,
+                Email = user.Email,
+                Username = user.UserName,
+                Role = user.Role?.Name,
+                RoleId = user.RoleId
+            };
         }
 
         public string GetJsonValueOfObject(User user)

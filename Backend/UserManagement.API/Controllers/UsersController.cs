@@ -77,5 +77,20 @@ namespace UserManagement.API.Controllers
                 return Failed(ex.Message);
             }
         }
+
+        [HttpGet("{id}")]
+        //[Authorize(Roles = "Admin,User,ReadOnlyUser")]
+        public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(id, cancellationToken);
+                return Success(user, "Success");
+            }
+            catch (Exception ex)
+            {
+                return Failed(ex.Message);
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ namespace UserManagement.Application.Interfaces.Services
         Task<UserDTO> CreateUserAsync(CreateUserDto createUserDto, CancellationToken cancellationToken);
         Task UpdateUserAsync(int userId, UpdateUserDto updateUserDto, CancellationToken cancellationToken);
         Task<IEnumerable<UserDTO>> GetAllUsersAsync(CancellationToken cancellationToken);
+        Task<UserDTO> GetUserByIdAsync(int userId, CancellationToken cancellationToken);
         Task DeleteUserAsync(int userId,CancellationToken cancellationToken);
     }
 }

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { CreateUserPayload, UserModel } from '../types/user.type';
+import { CreateUserPayload, UpdateUserPayload, UserApiResponse, UserModel } from '../types/user.type';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { UsersApiResponse } from '../types/user.type';
@@ -55,6 +55,19 @@ export class UserService {
 
   createUser(payload: CreateUserPayload): Observable<UsersApiResponse>{
     return this.http.post<UsersApiResponse>(this.baseUrl+'users', payload).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  getUserById(userId: number): Observable<UserModel>{
+    return this.http.get<UserApiResponse>(this.baseUrl+'users/'+userId).pipe(
+      map(response => response.result),
+      catchError(this.handleError)
+    );
+  }
+
+  updateUser(userId: number, payload: UpdateUserPayload): Observable<UsersApiResponse>{
+    return this.http.put<UsersApiResponse>(this.baseUrl+'users/'+userId, payload).pipe(
       catchError(this.handleError)
     );
   }
