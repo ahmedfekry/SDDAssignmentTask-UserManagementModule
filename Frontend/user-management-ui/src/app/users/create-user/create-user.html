@@ -1,6 +1,6 @@
 <main class="content content-narrow">
   <div class="breadcrumb">
-    <a href="users-list.html" data-i18n="users.title">Users</a> / <span data-i18n="add.title">Add User</span>
+    <a routerLink="/users" data-i18n="users.title">Users</a> / <span data-i18n="add.title">Add User</span>
   </div>
   <div class="page-head">
     <div>
@@ -9,96 +9,95 @@
     </div>
   </div>
 
-  <form class="card" id="addUserForm" novalidate>
+  <form class="card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
     <div class="card-body">
-      <div class="alert alert-danger form-alert hidden">
-        <span data-i18n="common.noResults">Please complete the required fields highlighted below.</span>
-      </div>
+      @if (submitted && form.invalid) {
+        <div class="alert alert-danger">
+          <span data-i18n="common.noResults">Please complete the required fields highlighted below.</span>
+        </div>
+      }
+
+      @if (errorMessage()) {
+        <div class="alert alert-danger">{{ errorMessage() }}</div>
+      }
 
       @if (rolesError()) {
         <div class="alert alert-danger">{{ rolesError() }}</div>
       }
 
       <div class="form-row">
-        <div class="field">
-          <label for="firstName"><span data-i18n="form.firstName">First name</span> <span class="req">*</span></label>
-          <input class="input" id="firstName" name="firstName" required />
-          <p class="error-text" data-i18n="common.required">required</p>
+        <div class="field" [class.invalid]="form.get('name')?.invalid && form.get('name')?.touched">
+          <label for="name"><span data-i18n="form.name">Full name</span> <span class="req">*</span></label>
+          <input class="input" id="name" formControlName="name" required />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <p class="error-text" data-i18n="common.required">required</p>
+          }
         </div>
-        <div class="field">
-          <label for="lastName"><span data-i18n="form.lastName">Last name</span> <span class="req">*</span></label>
-          <input class="input" id="lastName" name="lastName" required />
-          <p class="error-text" data-i18n="common.required">required</p>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="field">
+        <div class="field" [class.invalid]="form.get('username')?.invalid && form.get('username')?.touched">
           <label for="username"><span data-i18n="form.username">Username</span> <span class="req">*</span></label>
-          <input class="input" id="username" name="username" autocomplete="off" required />
+          <input class="input" id="username" formControlName="username" autocomplete="off" required />
+          @if (form.get('username')?.invalid && form.get('username')?.touched) {
+            <p class="error-text" data-i18n="common.required">required</p>
+          }
         </div>
-        <div class="field">
+      </div>
+
+      <div class="form-row">
+        <div class="field" [class.invalid]="form.get('email')?.invalid && form.get('email')?.touched">
           <label for="email"><span data-i18n="form.email">Email</span> <span class="req">*</span></label>
-          <input class="input" type="email" id="email" name="email" required />
+          <input class="input" type="email" id="email" formControlName="email" required />
+          @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
+            <p class="error-text" data-i18n="common.required">required</p>
+          }
+          @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+            <p class="error-text" data-i18n="common.invalidEmail">Enter a valid email</p>
+          }
         </div>
-      </div>
-
-      <div class="form-row">
-        <div class="field">
-          <label for="password"><span data-i18n="form.password">Password</span> <span class="req">*</span></label>
-          <input class="input" type="password" id="password" name="password" autocomplete="new-password" required />
-          <p class="hint" data-i18n="form.passwordHint">
-            Min 8 chars, 1 uppercase, 1 number, 1 symbol. Stored hashed + salted.
-          </p>
-        </div>
-        <div class="field">
-          <label for="confirmPassword"><span data-i18n="form.confirmPassword">Confirm password</span> <span class="req">*</span></label>
-          <input class="input" type="password" id="confirmPassword" name="confirmPassword" autocomplete="new-password" required />
-          <p class="error-text" data-i18n="common.required">required</p>
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="field">
+        
+        <div class="field" [class.invalid]="form.get('roleId')?.invalid && form.get('roleId')?.touched">
           <label for="role"><span data-i18n="form.role">Role</span> <span class="req">*</span></label>
-          <select class="select" id="role" name="role" required>
+          <select class="select" id="role" formControlName="roleId" required>
+            <option [ngValue]="null" disabled data-i18n="form.selectRole">Select a role</option>
             @for (role of roles(); track role.id) {
-              <option [value]="role.id">{{ role.name }}</option>
+              <option [ngValue]="role.id">{{ role.name }}</option>
             }
           </select>
-        </div>
-        <div class="field">
-          <label for="status" data-i18n="form.status">Status</label>
-          <select class="select" id="status" name="status">
-            <option value="Active" data-i18n="status.Active">Active</option>
-            <option value="Inactive" data-i18n="status.Inactive">Inactive</option>
-          </select>
+          @if (form.get('roleId')?.invalid && form.get('roleId')?.touched) {
+            <p class="error-text" data-i18n="common.required">required</p>
+          }
         </div>
       </div>
 
       <div class="form-row">
-        <div class="field">
-          <label for="phone" data-i18n="form.phone">Phone</label>
-          <input class="input" id="phone" name="phone" />
+        <div class="field" [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+          <label for="password">
+            <span data-i18n="form.password">Password</span>
+            <span class="req">*</span>
+          </label>
+          <input class="input" type="password" id="password" formControlName="password" autocomplete="new-password" required />
+          <p class="hint" data-i18n="form.passwordHint">
+            Min 8 characters.
+          </p>
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <p class="error-text" data-i18n="common.required">required, min 8 characters</p>
+          }
         </div>
-        <div class="field">
-          <label for="lang" data-i18n="form.language">Preferred language</label>
-          <select class="select" id="lang" name="lang">
-            <option value="en">English</option>
-            <option value="ar">العربية</option>
-          </select>
+        <div class="field" [class.invalid]="form.get('passwordConfirmed')?.touched && (form.get('passwordConfirmed')?.invalid || form.hasError('passwordMismatch'))">
+          <label for="confirmPassword">
+            <span data-i18n="form.confirmPassword">Confirm password</span>
+            <span class="req">*</span>
+          </label>
+          <input class="input" type="password" id="passwordConfirmed" formControlName="passwordConfirmed" autocomplete="new-password" required />
+          @if (form.get('passwordConfirmed')?.touched && form.hasError('passwordMismatch')) {
+            <p class="error-text" data-i18n="form.passwordMismatch">passwords do not match</p>
+          }
         </div>
       </div>
-
-      <label class="checkline">
-        <input type="checkbox" name="sendInvite" checked />
-        <span data-i18n="form.sendInvite">Send activation email</span>
-      </label>
     </div>
 
     <div class="card-footer">
-      <a href="users-list.html" class="btn btn-outline" data-i18n="common.cancel">Cancel</a>
-      <button type="submit" class="btn btn-primary" data-i18n="common.create">Create user</button>
+      <a routerLink="/users" class="btn btn-outline" data-i18n="common.cancel">Cancel</a>
+      <button type="submit" class="btn btn-primary" [disabled]="submitting()" data-i18n="common.create">Create user</button>
     </div>
   </form>
 </main>

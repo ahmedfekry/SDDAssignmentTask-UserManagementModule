@@ -15,3 +15,12 @@ export type UsersApiResponse = {
   };
   errors?: string[];
 };
+
+export type CreateUserPayload = {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  passwordConfirmed: string;
+  roleId: number;
+};

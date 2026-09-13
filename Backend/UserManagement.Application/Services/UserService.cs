@@ -50,6 +50,13 @@ namespace UserManagement.Application.Services
                 throw new Exception("Username already Exists");
 
             }
+
+            //validate the password and passwordConfirmed is matched
+            if(createUserDto.Password != createUserDto.PasswordConfirmed)
+            {
+                throw new InvalidDataException("Password and password confirmed is not matched");
+            }
+
             user = new User();
 
             user.UserName = createUserDto.Username;

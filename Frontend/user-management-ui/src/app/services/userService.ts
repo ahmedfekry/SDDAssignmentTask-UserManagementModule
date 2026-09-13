@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { UserModel } from '../types/user.type';
+import { CreateUserPayload, UserModel } from '../types/user.type';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { catchError, map, Observable, throwError } from 'rxjs';
 import { UsersApiResponse } from '../types/user.type';
@@ -49,6 +49,12 @@ export class UserService {
 
   deleteUser(userid: number): Observable<UsersApiResponse>{
     return this.http.delete<UsersApiResponse>(this.baseUrl+'users/'+userid).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  createUser(payload: CreateUserPayload): Observable<UsersApiResponse>{
+    return this.http.post<UsersApiResponse>(this.baseUrl+'users', payload).pipe(
       catchError(this.handleError)
     );
   }
