@@ -1,0 +1,86 @@
+<main class="content content-narrow">
+  <div class="page-head">
+    <div>
+      <h1>My Profile</h1>
+      <p class="sub">View and update your account details.</p>
+    </div>
+  </div>
+
+  <form class="card" [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+    <div class="card-body">
+      @if (loadingUser()) {
+        <div class="alert alert-info">Loading profile…</div>
+      }
+
+      @if (submitted && form.invalid) {
+        <div class="alert alert-danger">
+          <span>Please complete the required fields highlighted below.</span>
+        </div>
+      }
+
+      @if (errorMessage()) {
+        <div class="alert alert-danger">{{ errorMessage() }}</div>
+      }
+
+      @if (successMessage()) {
+        <div class="alert alert-success">{{ successMessage() }}</div>
+      }
+
+      <div class="form-row">
+        <div class="field" [class.invalid]="form.get('name')?.invalid && form.get('name')?.touched">
+          <label for="name"><span>Full name</span> <span class="req">*</span></label>
+          <input class="input" id="name" formControlName="name" required />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <p class="error-text">required</p>
+          }
+        </div>
+        <div class="field">
+          <label for="roleName">Role</label>
+          <input class="input" id="roleName" [value]="roleName()" disabled />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field" [class.invalid]="form.get('username')?.invalid && form.get('username')?.touched">
+          <label for="username"><span>Username</span> <span class="req">*</span></label>
+          <input class="input" id="username" formControlName="username" autocomplete="off" required />
+          @if (form.get('username')?.invalid && form.get('username')?.touched) {
+            <p class="error-text">required</p>
+          }
+        </div>
+        <div class="field" [class.invalid]="form.get('email')?.invalid && form.get('email')?.touched">
+          <label for="email"><span>Email</span> <span class="req">*</span></label>
+          <input class="input" type="email" id="email" formControlName="email" required />
+          @if (form.get('email')?.touched && form.get('email')?.hasError('required')) {
+            <p class="error-text">required</p>
+          }
+          @if (form.get('email')?.touched && form.get('email')?.hasError('email')) {
+            <p class="error-text">Enter a valid email</p>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field" [class.invalid]="form.get('password')?.invalid && form.get('password')?.touched">
+          <label for="password">Password</label>
+          <input class="input" type="password" id="password" formControlName="password" autocomplete="new-password" />
+          <p class="hint">Leave blank to keep your current password. Min 8 characters.</p>
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <p class="error-text">min 8 characters</p>
+          }
+        </div>
+        <div class="field" [class.invalid]="form.get('passwordConfirmed')?.touched && form.hasError('passwordMismatch')">
+          <label for="passwordConfirmed">Confirm password</label>
+          <input class="input" type="password" id="passwordConfirmed" formControlName="passwordConfirmed" autocomplete="new-password" />
+          @if (form.get('passwordConfirmed')?.touched && form.hasError('passwordMismatch')) {
+            <p class="error-text">passwords do not match</p>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <button type="submit" class="btn btn-primary" [disabled]="submitting() || loadingUser()">Save changes</button>
+    </div>
+  </form>
+</main>

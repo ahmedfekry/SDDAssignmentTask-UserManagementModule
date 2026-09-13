@@ -1,6 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { UserService } from '../services/userService';
+import { AuthService } from '../services/authService';
 import { UserModel } from '../types/user.type';
 @Component({
   selector: 'app-users',
@@ -13,6 +14,11 @@ export class Users implements OnInit {
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
   userService = inject(UserService);
+  authService = inject(AuthService);
+
+  isAdmin(): boolean {
+    return this.authService.getUser()?.roleName === 'Admin';
+  }
 
   ngOnInit(): void {
     this.loadUsersData();

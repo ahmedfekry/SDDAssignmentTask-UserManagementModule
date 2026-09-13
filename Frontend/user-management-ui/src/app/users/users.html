@@ -4,7 +4,9 @@
       <h1 data-i18n="users.title">Users</h1>
       <p class="sub" data-i18n="users.subtitle">Manage accounts, roles and access.</p>
     </div>
-    <a class="btn btn-primary" routerLink="/users/create" data-i18n="nav.addUser">Add User</a>
+    @if (isAdmin()) {
+      <a class="btn btn-primary" routerLink="/users/create" data-i18n="nav.addUser">Add User</a>
+    }
   </div>
 
   @if (errorMessage()) {
@@ -43,7 +45,9 @@
               <th class="sortable" data-key="username" data-i18n="users.col.username">Username</th>
               <th class="sortable" data-key="email" data-i18n="users.col.email">Email</th>
               <th class="sortable" data-key="role" data-i18n="users.col.role">Role</th>
-              <th class="text-end" data-i18n="common.actions">Actions</th>
+              @if (isAdmin()) {
+                <th class="text-end" data-i18n="common.actions">Actions</th>
+              }
             </tr>
           </thead>
           <tbody>
@@ -53,14 +57,16 @@
                 <td>{{ usr.username }}</td>
                 <td class="muted">{{ usr.email }}</td>
                 <td>{{ usr.role }}</td>
-                <td class="nowrap text-end">
-                  <a class="btn btn-sm btn-outline" [routerLink]="['/users/edit', usr.id]" data-i18n="common.edit">Edit</a>
-                  <button type="button" class="btn btn-sm btn-ghost" style="color:var(--danger)" data-i18n="common.delete" (click)="deleteUser(usr.id)" >Delete</button>
-                </td>
+                @if (isAdmin()) {
+                  <td class="nowrap text-end">
+                    <a class="btn btn-sm btn-outline" [routerLink]="['/users/edit', usr.id]" data-i18n="common.edit">Edit</a>
+                    <button type="button" class="btn btn-sm btn-ghost" style="color:var(--danger)" data-i18n="common.delete" (click)="deleteUser(usr.id)" >Delete</button>
+                  </td>
+                }
               </tr>
             } @empty {
               <tr>
-                <td colspan="5" class="muted text-center" data-i18n="users.empty">No users found.</td>
+                <td [attr.colspan]="isAdmin() ? 5 : 4" class="muted text-center" data-i18n="users.empty">No users found.</td>
               </tr>
             }
           </tbody>

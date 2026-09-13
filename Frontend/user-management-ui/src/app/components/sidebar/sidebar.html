@@ -9,12 +9,18 @@
     <a routerLink="/users" routerLinkActive="active">
       <span aria-hidden="true">☰</span> <span data-i18n="nav.users">Users</span>
     </a>
-    <a routerLink="/users/create" routerLinkActive="active">
-      <span aria-hidden="true">＋</span> <span data-i18n="nav.addUser">Add User</span>
-    </a>
+    @if (isAdmin()) {
+      <a routerLink="/users/create" routerLinkActive="active">
+        <span aria-hidden="true">＋</span> <span data-i18n="nav.addUser">Add User</span>
+      </a>
+    }
     <!-- <a href="audit-trail.html"><span aria-hidden="true">▤</span> <span data-i18n="nav.audit">Audit Trail</span></a> -->
     <div class="nav-section" data-i18n="nav.account">Account</div>
-    <a href="profile.html"><span aria-hidden="true">○</span> <span data-i18n="nav.profile">My Profile</span></a>
+    @if (canViewProfile()) {
+      <a [routerLink]="['/profile', authService.getUser()?.userId]" routerLinkActive="active">
+        <span aria-hidden="true">○</span> <span data-i18n="nav.profile">My Profile</span>
+      </a>
+    }
     <a href="javascript:void(0)" (click)="logout()">
       <span aria-hidden="true">⏻</span> <span data-i18n="nav.logout">Log out</span>
     </a>

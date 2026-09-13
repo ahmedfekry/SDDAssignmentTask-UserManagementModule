@@ -79,7 +79,7 @@ namespace UserManagement.API.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin,User,ReadOnlyUser")]
+        [Authorize(Roles = "Admin,User")]
         public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
         {
             try

@@ -178,6 +178,16 @@ namespace UserManagement.Application.Services
                 throw new NotFoundException("User not found");
             }
 
+            // A user may view their own profile; viewing someone else's requires Admin.
+            if (_currentUserService.UserId != user.Id)
+            {
+                var currentUser = await _userRepository.ByIdAsync(_currentUserService.UserId.Value, cancellationToken);
+                if (currentUser.Role.Name != "Admin")
+                {
+                    throw new UnauthorizedAccessException("You are not allowed to view this user");
+                }
+            }
+
             return new UserDTO
             {
                 Id = user.Id,

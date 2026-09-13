@@ -12,6 +12,15 @@ export class Sidebar {
   authService = inject(AuthService);
   router = inject(Router);
 
+  isAdmin(): boolean {
+    return this.authService.getUser()?.roleName === 'Admin';
+  }
+
+  canViewProfile(): boolean {
+    const role = this.authService.getUser()?.roleName;
+    return role === 'Admin' || role === 'User';
+  }
+
   logout(): void {
     this.authService.logoutUser().subscribe({
       next: () => this.finishLogout(),
