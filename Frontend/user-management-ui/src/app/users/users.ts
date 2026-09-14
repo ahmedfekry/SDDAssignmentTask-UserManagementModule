@@ -1,23 +1,35 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 import { UserService } from '../services/userService';
 import { AuthService } from '../services/authService';
 import { UserModel } from '../types/user.type';
+
+type SortDirection = 'asc' | 'desc';
+
 @Component({
   selector: 'app-users',
   imports: [RouterLink],
   templateUrl: './users.html',
   styleUrl: './users.css',
 })
-export class Users implements OnInit {
+export class Users implements OnInit, OnDestroy {
   usersList = signal<Array<UserModel>>([])
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
 
   page = signal(1);
-  pageSize = signal(8);
+  pageSize = signal(10);
   totalCount = signal(0);
   totalPages = signal(0);
+
+  search = signal('');
+  roleFilter = signal('');
+  sortBy = signal<string | null>(null);
+  sortDirection = signal<SortDirection>('asc');
+
+  private searchInput$ = new Subject<string>();
 
   userService = inject(UserService);
   authService = inject(AuthService);
@@ -27,7 +39,20 @@ export class Users implements OnInit {
   }
 
   ngOnInit(): void {
+    this.searchInput$.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe((value) => {
+      this.search.set(value);
+      this.page.set(1);
+      this.loadUsersData();
+    });
+
     this.loadUsersData();
+  }
+
+  ngOnDestroy(): void {
+    this.searchInput$.complete();
   }
 
   deleteUser(userId: number){
@@ -53,7 +78,14 @@ export class Users implements OnInit {
   loadUsersData(): void{
     this.errorMessage.set(null);
     this.userService
-    .getUsersList(this.page(), this.pageSize())
+    .getUsersList(
+      this.page(),
+      this.pageSize(),
+      this.search() || undefined,
+      this.roleFilter() || undefined,
+      this.sortBy() || undefined,
+      this.sortDirection()
+    )
     .subscribe({
       next: (data) => {
         // The page we asked for no longer exists (e.g. the last item on it was just
@@ -72,6 +104,27 @@ export class Users implements OnInit {
         this.errorMessage.set(err.message);
       }
     });
+  }
+
+  onSearchInput(event: Event): void {
+    this.searchInput$.next((event.target as HTMLInputElement).value);
+  }
+
+  onRoleFilterChange(event: Event): void {
+    this.roleFilter.set((event.target as HTMLSelectElement).value);
+    this.page.set(1);
+    this.loadUsersData();
+  }
+
+  sortByColumn(key: string): void {
+    if (this.sortBy() === key) {
+      this.sortDirection.set(this.sortDirection() === 'asc' ? 'desc' : 'asc');
+    } else {
+      this.sortBy.set(key);
+      this.sortDirection.set('asc');
+    }
+    this.page.set(1);
+    this.loadUsersData();
   }
 
   goToPage(page: number): void {
@@ -100,5 +153,3 @@ export class Users implements OnInit {
     return Math.min(this.page() * this.pageSize(), this.totalCount());
   }
 }
-
-

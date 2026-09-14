@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UserManagement.Application.Common;
+using UserManagement.Application.Common.Models;
 using UserManagement.Application.Interfaces.Repositories;
 using UserManagement.Domain.Entities;
 
@@ -42,14 +43,42 @@ namespace UserManagement.Infrastructure.Persistance.Respositories
             await this._applicationDbContext.SaveChangesAsync(cancellationToken);
         }
 
-        public async Task<(IEnumerable<User> Users, int TotalCount)> GetPagedAsync(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<(IEnumerable<User> Users, int TotalCount)> GetPagedAsync(UserQueryOptions options, CancellationToken cancellationToken)
         {
-            var query = this._applicationDbContext.Users.Include(usr => usr.Role).OrderBy(usr => usr.Id);
+            IQueryable<User> query = this._applicationDbContext.Users.Include(usr => usr.Role);
+
+            if (!string.IsNullOrWhiteSpace(options.Search))
+            {
+                var pattern = $"%{options.Search.Trim()}%";
+                query = query.Where(u =>
+                    EF.Functions.Like(u.Name, pattern) ||
+                    EF.Functions.Like(u.UserName, pattern) ||
+                    EF.Functions.Like(u.Email, pattern));
+            }
+
+            if (!string.IsNullOrWhiteSpace(options.Role))
+            {
+                query = query.Where(u => u.Role.Name == options.Role);
+            }
+
+            var descending = string.Equals(options.SortDirection, "desc", StringComparison.OrdinalIgnoreCase);
+
+            IOrderedQueryable<User> ordered = options.SortBy?.ToLowerInvariant() switch
+            {
+                "username" => descending ? query.OrderByDescending(u => u.UserName) : query.OrderBy(u => u.UserName),
+                "email" => descending ? query.OrderByDescending(u => u.Email) : query.OrderBy(u => u.Email),
+                "role" => descending ? query.OrderByDescending(u => u.Role.Name) : query.OrderBy(u => u.Role.Name),
+                _ => descending ? query.OrderByDescending(u => u.Name) : query.OrderBy(u => u.Name)
+            };
+
+            // Tie-breaker so pagination stays stable/deterministic even when the sort
+            // column has duplicate values across rows.
+            query = ordered.ThenBy(u => u.Id);
 
             var totalCount = await query.CountAsync(cancellationToken);
             var users = await query
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((options.Page - 1) * options.PageSize)
+                .Take(options.PageSize)
                 .ToListAsync(cancellationToken);
 
             return (users, totalCount);

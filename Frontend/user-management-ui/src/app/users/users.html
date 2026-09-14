@@ -22,9 +22,10 @@
         <div class="search">
           <input class="input" type="search" id="tblSearch"
                   data-i18n-placeholder="common.searchUsers"
-                  placeholder="Search by name, username or email…" />
+                  placeholder="Search by name, username or email…"
+                  (input)="onSearchInput($event)" />
         </div>
-        <select class="select" id="tblRole" data-i18n-title="common.role">
+        <select class="select" id="tblRole" data-i18n-title="common.role" [value]="roleFilter()" (change)="onRoleFilterChange($event)">
           <option value="" data-i18n="common.allRoles">All roles</option>
           <option value="Admin" data-i18n="role.Admin">Admin</option>
           <option value="User" data-i18n="role.User">User</option>
@@ -41,10 +42,10 @@
         <table class="data" id="usersTable">
           <thead>
             <tr>
-              <th class="sortable" data-key="name" data-i18n="users.col.name">Name</th>
-              <th class="sortable" data-key="username" data-i18n="users.col.username">Username</th>
-              <th class="sortable" data-key="email" data-i18n="users.col.email">Email</th>
-              <th class="sortable" data-key="role" data-i18n="users.col.role">Role</th>
+              <th class="sortable" [class.sort-asc]="sortBy() === 'name' && sortDirection() === 'asc'" [class.sort-desc]="sortBy() === 'name' && sortDirection() === 'desc'" (click)="sortByColumn('name')" data-i18n="users.col.name">Name</th>
+              <th class="sortable" [class.sort-asc]="sortBy() === 'username' && sortDirection() === 'asc'" [class.sort-desc]="sortBy() === 'username' && sortDirection() === 'desc'" (click)="sortByColumn('username')" data-i18n="users.col.username">Username</th>
+              <th class="sortable" [class.sort-asc]="sortBy() === 'email' && sortDirection() === 'asc'" [class.sort-desc]="sortBy() === 'email' && sortDirection() === 'desc'" (click)="sortByColumn('email')" data-i18n="users.col.email">Email</th>
+              <th class="sortable" [class.sort-asc]="sortBy() === 'role' && sortDirection() === 'asc'" [class.sort-desc]="sortBy() === 'role' && sortDirection() === 'desc'" (click)="sortByColumn('role')" data-i18n="users.col.role">Role</th>
               @if (isAdmin()) {
                 <th class="text-end" data-i18n="common.actions">Actions</th>
               }

@@ -13,10 +13,6 @@ export class AuthService {
   httpClient = inject(HttpClient);
   baseUrl = `https://localhost:7254/api/auth`;
 
-  // Deliberately not persisted (localStorage/sessionStorage) - kept only in memory so it
-  // never lingers where an XSS payload could read it, and is lost on every page reload
-  // by design. The app initializer re-derives it via refreshToken() on boot, using the
-  // HttpOnly refresh-token cookie.
   private accessTokenSignal = signal<string | null>(null);
   private refreshInFlight$: Observable<boolean> | null = null;
 
@@ -34,10 +30,6 @@ export class AuthService {
             );
   }
 
-  // Uses the HttpOnly refresh-token cookie (sent automatically by the browser) to obtain
-  // a fresh access token without the user re-entering credentials. Coalesces concurrent
-  // callers (app initializer, a guard, several requests 401-ing at once) into a single
-  // in-flight HTTP call - the interceptor's own queueing sits on top of this.
   refreshToken(): Observable<boolean> {
     if (this.refreshInFlight$) {
       return this.refreshInFlight$;

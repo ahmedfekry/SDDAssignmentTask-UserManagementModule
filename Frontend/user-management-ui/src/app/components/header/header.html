@@ -7,10 +7,10 @@
     <button data-lang="ar">ع</button>
   </div>
   <div class="user-chip">
-    <span class="avatar">SA</span>
+    <span class="avatar">{{ avatarInitials() }}</span>
     <span class="u-meta">
-      <span class="u-name">Sarah Ahmed</span><br />
-      <span class="u-role" data-i18n="role.Admin">Admin</span>
+      <span class="u-name">{{ username() }}</span><br />
+      <span class="u-role">{{ roleName() }}</span>
     </span>
   </div>
 </header>

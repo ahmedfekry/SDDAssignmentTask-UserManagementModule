@@ -40,8 +40,19 @@ export class UserService {
   http = inject(HttpClient);
   baseUrl = `https://localhost:7254/api/`;
 
-  getUsersList(page: number = 1, pageSize: number = 8): Observable<PagedUsers>{
-    const params = new HttpParams().set('page', page).set('pageSize', pageSize);
+  getUsersList(
+    page: number = 1,
+    pageSize: number = 10,
+    search?: string,
+    role?: string,
+    sortBy?: string,
+    sortDirection?: 'asc' | 'desc'
+  ): Observable<PagedUsers>{
+    let params = new HttpParams().set('page', page).set('pageSize', pageSize);
+    if (search) { params = params.set('search', search); }
+    if (role) { params = params.set('role', role); }
+    if (sortBy) { params = params.set('sortBy', sortBy).set('sortDirection', sortDirection ?? 'asc'); }
+
     return this.http.get<UsersApiResponse>(this.baseUrl+'users', { params }).pipe(
       map(response => response.result),
       catchError(this.handleError)

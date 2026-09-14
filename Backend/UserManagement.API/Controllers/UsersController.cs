@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq.Expressions;
+using UserManagement.Application.Common.Models;
 using UserManagement.Application.Interfaces.Services;
 using UserManagement.Domain.DTOs.User;
 
@@ -65,11 +66,27 @@ namespace UserManagement.API.Controllers
 
         [HttpGet]
         [Authorize(Roles = "Admin,User,ReadOnlyUser")]
-        public async Task<IActionResult> Index([FromQuery] int page = 1, [FromQuery] int pageSize = 8, CancellationToken cancellationToken = default)
+        public async Task<IActionResult> Index(
+            [FromQuery] int page = 1,
+            [FromQuery] int pageSize = 10,
+            [FromQuery] string? search = null,
+            [FromQuery] string? role = null,
+            [FromQuery] string? sortBy = null,
+            [FromQuery] string? sortDirection = null,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                var result = await _userService.GetUsersPagedAsync(page, pageSize, cancellationToken);
+                var result = await _userService.GetUsersPagedAsync(new UserQueryOptions
+                {
+                    Page = page,
+                    PageSize = pageSize,
+                    Search = search,
+                    Role = role,
+                    SortBy = sortBy,
+                    SortDirection = sortDirection
+                }, cancellationToken);
+
                 return Success(new
                 {
                     users = result.Items,

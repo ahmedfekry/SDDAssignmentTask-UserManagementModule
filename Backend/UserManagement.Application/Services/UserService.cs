@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using UserManagement.Application.Common;
+using UserManagement.Application.Common.Models;
 using UserManagement.Application.Interfaces.Repositories;
 using UserManagement.Application.Interfaces.Services;
 using UserManagement.Domain.DTOs.User;
@@ -161,12 +162,12 @@ namespace UserManagement.Application.Services
             await WriteAuditAsync(ActionType.Delete, userId, oldValues, newValues: null, cancellationToken);
         }
 
-        public async Task<PagedResult<UserDTO>> GetUsersPagedAsync(int page, int pageSize, CancellationToken cancellationToken)
+        public async Task<PagedResult<UserDTO>> GetUsersPagedAsync(UserQueryOptions options, CancellationToken cancellationToken)
         {
-            page = page < 1 ? 1 : page;
-            pageSize = pageSize < 1 ? 10 : Math.Min(pageSize, 100);
+            options.Page = options.Page < 1 ? 1 : options.Page;
+            options.PageSize = options.PageSize < 1 ? 10 : Math.Min(options.PageSize, 100);
 
-            var (users, totalCount) = await _userRepository.GetPagedAsync(page, pageSize, cancellationToken);
+            var (users, totalCount) = await _userRepository.GetPagedAsync(options, cancellationToken);
 
             return new PagedResult<UserDTO>
             {
@@ -179,8 +180,8 @@ namespace UserManagement.Application.Services
                     Role = user.Role.Name,
                     RoleId = user.RoleId
                 }),
-                Page = page,
-                PageSize = pageSize,
+                Page = options.Page,
+                PageSize = options.PageSize,
                 TotalCount = totalCount
             };
         }
