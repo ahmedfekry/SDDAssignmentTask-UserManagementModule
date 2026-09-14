@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using UserManagement.Application.Common;
 using UserManagement.Application.Common.Models;
 using UserManagement.Application.Interfaces.Repositories;
 using UserManagement.Application.Interfaces.Services;
-using UserManagement.Domain.Entities;
 
 namespace UserManagement.Application.Services
 {
@@ -15,23 +12,21 @@ namespace UserManagement.Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasherService _passwordHasherService;
-        private readonly IJWTGeneratorService _jWTGeneratorService;
+        private readonly ITokenService _tokenService;
 
         public AuthenticationService(IUserRepository userRepository,
                                      IPasswordHasherService passwordHasherService,
-                                     IJWTGeneratorService jWTGeneratorService
-                                     ) 
+                                     ITokenService tokenService
+                                     )
         {
             _userRepository = userRepository;
             _passwordHasherService = passwordHasherService;
-            _jWTGeneratorService = jWTGeneratorService;
+            _tokenService = tokenService;
         }
 
         public async Task<LoginResponse> LoginAsync(LoginRequest loginRequest, CancellationToken cancellationToken)
         {
-            var user = new User();
-
-            user = await this._userRepository.GetByUserNameAsync(loginRequest.Username,cancellationToken);
+            var user = await this._userRepository.GetByUserNameAsync(loginRequest.Username,cancellationToken);
             if (user == null)
                 throw new NotFoundException("Invalid Login Credentials");
 
@@ -41,38 +36,37 @@ namespace UserManagement.Application.Services
                 throw new UnauthorizedAccessException();
             }
 
-            return BuildLoginResponse(user, includeRefreshToken: true);
-        }
+            var (refreshToken, refreshExpiresAt) = await _tokenService.IssueRefreshTokenAsync(user.Id, Guid.NewGuid(), cancellationToken);
 
-        public async Task<LoginResponse> RefreshAsync(string refreshToken, CancellationToken cancellationToken)
-        {
-            var userId = _jWTGeneratorService.ValidateRefreshTokenAndGetUserId(refreshToken);
-            if (userId == null)
-            {
-                throw new UnauthorizedAccessException("Invalid or expired refresh token");
-            }
-
-            var user = await _userRepository.ByIdAsync(userId.Value, cancellationToken);
-            if (user == null)
-            {
-                throw new UnauthorizedAccessException("Invalid or expired refresh token");
-            }
-
-            // Not rotated (stateless refresh tokens) - the same refresh token keeps working
-            // until it naturally expires, so we only mint a fresh access token here.
-            return BuildLoginResponse(user, includeRefreshToken: false);
-        }
-
-        private LoginResponse BuildLoginResponse(User user, bool includeRefreshToken)
-        {
             return new LoginResponse
             {
                 Username = user.UserName,
                 UserId = user.Id,
                 RoleName = user.Role.Name,
-                JwtToken = _jWTGeneratorService.GenerateJWTTekenAsync(user),
-                RefreshToken = includeRefreshToken ? _jWTGeneratorService.GenerateRefreshToken(user) : null
+                JwtToken = _tokenService.GenerateAccessToken(user),
+                RefreshToken = refreshToken,
+                RefreshTokenExpiresAt = refreshExpiresAt
             };
+        }
+
+        public async Task<LoginResponse> RefreshAsync(string refreshToken, CancellationToken cancellationToken)
+        {
+            var result = await _tokenService.RotateAsync(refreshToken, cancellationToken);
+
+            return new LoginResponse
+            {
+                Username = result.User.UserName,
+                UserId = result.User.Id,
+                RoleName = result.User.Role.Name,
+                JwtToken = result.AccessToken,
+                RefreshToken = result.RefreshToken,
+                RefreshTokenExpiresAt = result.RefreshTokenExpiresAt
+            };
+        }
+
+        public Task LogoutAsync(string refreshToken, CancellationToken cancellationToken)
+        {
+            return _tokenService.RevokeAsync(refreshToken, cancellationToken);
         }
     }
 }

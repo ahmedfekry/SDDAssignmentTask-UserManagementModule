@@ -1,5 +1,5 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { inject, Injectable } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { catchError, finalize, map, Observable, of, shareReplay, tap, throwError } from 'rxjs';
 import { AuthApiResponse, AuthPayload, AuthUser } from '../types/auth.type';
 
@@ -11,10 +11,13 @@ const SESSION_KEY = 'auth_user';
 export class AuthService {
 
   httpClient = inject(HttpClient);
-  baseUrl = `https://localhost:7254/api/Authentication`;
+  baseUrl = `https://localhost:7254/api/auth`;
 
-
-  private accessToken: string | null = null;
+  // Deliberately not persisted (localStorage/sessionStorage) - kept only in memory so it
+  // never lingers where an XSS payload could read it, and is lost on every page reload
+  // by design. The app initializer re-derives it via refreshToken() on boot, using the
+  // HttpOnly refresh-token cookie.
+  private accessTokenSignal = signal<string | null>(null);
   private refreshInFlight$: Observable<boolean> | null = null;
 
   loginUser(authPayload: AuthPayload ): Observable<AuthApiResponse>{
@@ -31,7 +34,11 @@ export class AuthService {
             );
   }
 
-  refreshAccessToken(): Observable<boolean> {
+  // Uses the HttpOnly refresh-token cookie (sent automatically by the browser) to obtain
+  // a fresh access token without the user re-entering credentials. Coalesces concurrent
+  // callers (app initializer, a guard, several requests 401-ing at once) into a single
+  // in-flight HTTP call - the interceptor's own queueing sits on top of this.
+  refreshToken(): Observable<boolean> {
     if (this.refreshInFlight$) {
       return this.refreshInFlight$;
     }
@@ -39,7 +46,7 @@ export class AuthService {
     this.refreshInFlight$ = this.httpClient.post<AuthApiResponse>(this.baseUrl + '/refresh', {}).pipe(
       tap((data) => {
         if (data.success) {
-          this.accessToken = data.result.accessToken;
+          this.setAccessToken(data.result.accessToken);
           this.setSession({
             userId: data.result.userId,
             username: data.result.username,
@@ -57,15 +64,15 @@ export class AuthService {
   }
 
   getAccessToken(): string | null {
-    return this.accessToken;
+    return this.accessTokenSignal();
   }
 
   setAccessToken(token: string): void {
-    this.accessToken = token;
+    this.accessTokenSignal.set(token);
   }
 
   clearAccessToken(): void {
-    this.accessToken = null;
+    this.accessTokenSignal.set(null);
   }
 
   setSession(user: AuthUser): void {

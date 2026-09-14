@@ -1,34 +1,40 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using UserManagement.Application.Services;
 using UserManagement.Application.Common.Models;
-using UserManagement.Application.Common;
 using UserManagement.Application.Interfaces.Services;
 
 namespace UserManagement.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthenticationController : BaseApiController
     {
-        private const string RefreshCookieName = "refresh_token";
-        private const string RefreshCookiePath = "/api/Authentication/refresh";
+        private const string RefreshCookieName = "refreshToken";
+        private const string RefreshCookiePath = "/api/auth";
 
         private readonly IAuthenticationService _authenticationService;
+        private readonly IUserService _userService;
+        private readonly ICurrentUserService _currentUserService;
 
-        public AuthenticationController(IAuthenticationService authenticationService)
+        public AuthenticationController(
+            IAuthenticationService authenticationService,
+            IUserService userService,
+            ICurrentUserService currentUserService)
         {
             _authenticationService = authenticationService;
+            _userService = userService;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginRequest request,CancellationToken cancellationToken)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request, CancellationToken cancellationToken)
         {
             try
             {
                 var result = await _authenticationService.LoginAsync(request, cancellationToken);
 
-                SetRefreshTokenCookie(result.RefreshToken!);
+                SetRefreshTokenCookie(result.RefreshToken, result.RefreshTokenExpiresAt);
 
                 return Success(BuildAuthPayload(result), "Login Successful");
             }
@@ -48,53 +54,78 @@ namespace UserManagement.API.Controllers
 
             try
             {
+                // Rotation: this call also revokes the presented token and issues a new one.
                 var result = await _authenticationService.RefreshAsync(refreshToken, cancellationToken);
+
+                SetRefreshTokenCookie(result.RefreshToken, result.RefreshTokenExpiresAt);
 
                 return Success(BuildAuthPayload(result), "Success");
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // The refresh token is gone/invalid either way, so drop it rather than
-                // leaving a dead cookie around for the browser to keep resending.
-                Response.Cookies.Delete(RefreshCookieName, CookieOptionsFor(RefreshCookiePath));
-                return Failed("Invalid or expired refresh token", StatusCodes.Status401Unauthorized, []);
+                Response.Cookies.Delete(RefreshCookieName, CookieOptionsFor());
+                return Failed(ex.Message, StatusCodes.Status401Unauthorized, []);
             }
         }
 
         [HttpPost("logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout(CancellationToken cancellationToken)
         {
-            Response.Cookies.Delete(RefreshCookieName, CookieOptionsFor(RefreshCookiePath));
+            if (Request.Cookies.TryGetValue(RefreshCookieName, out var refreshToken) && !string.IsNullOrEmpty(refreshToken))
+            {
+                await _authenticationService.LogoutAsync(refreshToken, cancellationToken);
+            }
+
+            Response.Cookies.Delete(RefreshCookieName, CookieOptionsFor());
 
             return Success(new { }, "Logged out");
+        }
+
+        [HttpGet("me")]
+        [Authorize]
+        public async Task<IActionResult> Me(CancellationToken cancellationToken)
+        {
+            try
+            {
+                var user = await _userService.GetUserByIdAsync(_currentUserService.UserId!.Value, cancellationToken);
+                return Success(user, "Success");
+            }
+            catch (Exception ex)
+            {
+                return Failed(ex.Message, StatusCodes.Status401Unauthorized, []);
+            }
         }
 
         private static object BuildAuthPayload(LoginResponse result) => new
         {
             accessToken = result.JwtToken.Token,
-            expiresAt = result.JwtToken.ExpiresAt,
+            expiresIn = (int)Math.Max(0, (result.JwtToken.ExpiresAt - DateTime.UtcNow).TotalSeconds),
             userId = result.UserId,
             username = result.Username,
             roleName = result.RoleName
         };
 
-        private void SetRefreshTokenCookie(JWTToken refreshToken)
+        private void SetRefreshTokenCookie(string token, DateTime expiresAt)
         {
-            Response.Cookies.Append(RefreshCookieName, refreshToken.Token, new CookieOptions
+            Response.Cookies.Append(RefreshCookieName, token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
+                // Strict would be dropped entirely here: the frontend runs on http://localhost:4200
+                // (no SSL in ng serve) while the API is https://localhost:7254 - that's a scheme
+                // mismatch, which Chrome's Schemeful-Same-Site treats as cross-site even though the
+                // hostname matches, and Strict/Lax cookies are never sent cross-site. None is the
+                // only mode that actually works for a separate-origin API in this setup.
                 SameSite = SameSiteMode.None,
-                Expires = refreshToken.ExpiresAt,
-                // Scoped so the browser only ever sends this cookie to the refresh
-                // endpoint itself, not on every request to the API.
+                Expires = expiresAt,
+                // Scoped so the browser only ever sends this cookie to auth endpoints.
                 Path = RefreshCookiePath
             });
         }
 
-        private static CookieOptions CookieOptionsFor(string path) => new()
+        private static CookieOptions CookieOptionsFor() => new()
         {
-            Path = path,
+            Path = RefreshCookiePath,
             Secure = true,
             SameSite = SameSiteMode.None
         };

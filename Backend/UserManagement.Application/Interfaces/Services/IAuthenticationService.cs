@@ -11,5 +11,6 @@ namespace UserManagement.Application.Interfaces.Services
     {
         Task<LoginResponse> LoginAsync(LoginRequest loginRequest, CancellationToken cancellationToken);
         Task<LoginResponse> RefreshAsync(string refreshToken, CancellationToken cancellationToken);
+        Task LogoutAsync(string refreshToken, CancellationToken cancellationToken);
     }
 }

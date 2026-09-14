@@ -19,10 +19,9 @@ export const authGuard: CanActivateFn = () => {
     return true;
   }
 
-  // No access token in memory - most likely a fresh page load/hard refresh, since the
-  // token is intentionally never persisted. Try a silent refresh via the HttpOnly
-  // refresh-token cookie before concluding the user is actually logged out.
-  return authService.refreshAccessToken().pipe(
+  // The app initializer already attempted a silent refresh at boot. If there's still no
+  // token (e.g. it expired mid-session), try once more before giving up.
+  return authService.refreshToken().pipe(
     map((refreshed) => refreshed ? true : router.createUrlTree(['/signin']))
   );
 };

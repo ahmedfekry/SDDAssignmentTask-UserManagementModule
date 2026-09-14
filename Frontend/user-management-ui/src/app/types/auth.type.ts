@@ -1,6 +1,6 @@
 export type LoginResult = {
   accessToken: string;
-  expiresAt: string;
+  expiresIn: number;
   userId: number;
   username: string;
   roleName: string;

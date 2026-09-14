@@ -15,6 +15,7 @@ namespace UserManagement.Infrastructure.Persistance
         public DbSet<User> Users { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -35,6 +36,14 @@ namespace UserManagement.Infrastructure.Persistance
                 new Role { Id = 3, Name = "ReadOnlyUser", Description = "Read-only access." }
             );
 
+            // refresh token configs
+            modelBuilder.Entity<RefreshToken>().HasIndex(t => t.TokenHash).IsUnique();
+            modelBuilder.Entity<RefreshToken>().HasIndex(t => t.FamilyId);
+            modelBuilder.Entity<RefreshToken>()
+                .HasOne(t => t.User)
+                .WithMany()
+                .HasForeignKey(t => t.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
 
         public override int SaveChanges()
