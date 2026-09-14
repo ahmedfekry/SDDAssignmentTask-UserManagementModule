@@ -11,5 +11,7 @@ namespace UserManagement.Application.Interfaces.Services
     public interface IJWTGeneratorService
     {
         JWTToken GenerateJWTTekenAsync(User user);
+        JWTToken GenerateRefreshToken(User user);
+        int? ValidateRefreshTokenAndGetUserId(string refreshToken);
     }
 }

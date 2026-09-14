@@ -10,6 +10,7 @@ namespace UserManagement.Application.Common.Models
     public class LoginResponse
     {
         public JWTToken JwtToken { get; set; }
+        public JWTToken? RefreshToken { get; set; }
         public int UserId { get; set; }
         public string Username { get; set; } = string.Empty;
         public string RoleName { get; set; } = string.Empty;

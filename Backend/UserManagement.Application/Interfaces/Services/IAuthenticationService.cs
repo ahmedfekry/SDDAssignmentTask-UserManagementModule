@@ -10,5 +10,6 @@ namespace UserManagement.Application.Interfaces.Services
     public interface IAuthenticationService
     {
         Task<LoginResponse> LoginAsync(LoginRequest loginRequest, CancellationToken cancellationToken);
+        Task<LoginResponse> RefreshAsync(string refreshToken, CancellationToken cancellationToken);
     }
 }

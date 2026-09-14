@@ -1,8 +1,9 @@
 export type LoginResult = {
+  accessToken: string;
+  expiresAt: string;
   userId: number;
   username: string;
   roleName: string;
-  expiresAt: string;
 }
 
 export type AuthApiResponse = {

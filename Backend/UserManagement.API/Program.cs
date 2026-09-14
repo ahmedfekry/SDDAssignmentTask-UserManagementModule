@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
-using UserManagement.API.Middleware;
 using UserManagement.API.Services;
 using UserManagement.Application.Common;
 using UserManagement.Application.Interfaces.Repositories;
@@ -74,20 +73,8 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key),
         ClockSkew = TimeSpan.Zero // Removes default 5 min grace period for token expiration
     };
-
-    // The token is stored in an HttpOnly cookie (not sent as an Authorization header),
-    // so pull it from there instead.
-    options.Events = new JwtBearerEvents
-    {
-        OnMessageReceived = context =>
-        {
-            if (context.Request.Cookies.TryGetValue(AuthCookieNames.AccessToken, out var token))
-            {
-                context.Token = token;
-            }
-            return Task.CompletedTask;
-        }
-    };
+    // Access token now travels as a normal "Authorization: Bearer ..." header (kept in
+    // memory by the frontend, not a cookie), so the default header-based extraction applies.
 });
 
 builder.Services.AddAuthorization();
@@ -115,8 +102,6 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseCors("AllowFrontend");
-
-app.UseMiddleware<XsrfValidationMiddleware>();
 
 app.UseAuthentication();
 

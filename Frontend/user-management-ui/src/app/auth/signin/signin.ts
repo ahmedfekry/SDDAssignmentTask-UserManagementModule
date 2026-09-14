@@ -40,6 +40,7 @@ export class Signin {
       next: (data) => {
         this.submitting.set(false);
         if (data.success) {
+          this.authService.setAccessToken(data.result.accessToken);
           this.authService.setSession({
             userId: data.result.userId,
             username: data.result.username,

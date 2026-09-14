@@ -1,42 +1,47 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, throwError } from 'rxjs';
+import { catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/authService';
 
-const XSRF_COOKIE_NAME = 'XSRF-TOKEN';
-const XSRF_HEADER_NAME = 'X-XSRF-TOKEN';
-const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);
+// /login has no token to refresh yet, and /refresh failing means the refresh token
+// itself is dead - retrying either through this same flow would just recurse forever.
+function isAuthEndpoint(url: string): boolean {
+  return url.includes('/api/Authentication/login') || url.includes('/api/Authentication/refresh');
+}
 
-function readCookie(name: string): string | null {
-  if (typeof document === 'undefined') {
-    return null;
-  }
-  const prefix = name + '=';
-  const match = document.cookie.split('; ').find(row => row.startsWith(prefix));
-  return match ? decodeURIComponent(match.slice(prefix.length)) : null;
+function withAuthHeader(req: HttpRequest<unknown>, authService: AuthService): HttpRequest<unknown> {
+  const token = authService.getAccessToken();
+  return token ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
 }
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const router = inject(Router);
   const authService = inject(AuthService);
 
-  let authReq = req.clone({ withCredentials: true });
-
-  if (!SAFE_METHODS.has(req.method.toUpperCase())) {
-    const csrfToken = readCookie(XSRF_COOKIE_NAME);
-    if (csrfToken) {
-      authReq = authReq.clone({ setHeaders: { [XSRF_HEADER_NAME]: csrfToken } });
-    }
-  }
+  // withCredentials is only load-bearing for /login and /refresh (they exchange the
+  // HttpOnly refresh-token cookie) - harmless to set on every request since no cookie
+  // exists for any other path anyway.
+  const authReq = withAuthHeader(req.clone({ withCredentials: true }), authService);
 
   return next(authReq).pipe(
     catchError((error: unknown) => {
-      if (error instanceof HttpErrorResponse && error.status === 401) {
-        authService.clearSession();
-        router.navigate(['/signin']);
+      const isUnauthorized = error instanceof HttpErrorResponse && error.status === 401;
+
+      if (!isUnauthorized || isAuthEndpoint(req.url)) {
+        return throwError(() => error);
       }
-      return throwError(() => error);
+
+      return authService.refreshAccessToken().pipe(
+        switchMap((refreshed) => {
+          if (!refreshed) {
+            authService.clearSession();
+            router.navigate(['/signin']);
+            return throwError(() => error);
+          }
+          return next(withAuthHeader(req.clone({ withCredentials: true }), authService));
+        })
+      );
     })
   );
 };
